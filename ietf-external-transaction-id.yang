@@ -1,0 +1,95 @@
+
+module ietf-external-transaction-id {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-external-transaction-id";
+  prefix ext-txid;
+
+  import ietf-yang-types {
+    prefix yang;
+    reference "RFC 6991: Common YANG Data Types";
+  }
+
+  organization
+    "IETF NETCONF (Network Configuration) Working Group";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/netconf/>
+     WG List:  <mailto:netconf@ietf.org>
+     Author:   Benoit Claise  <mailto:benoit.claise@huawei.com>
+     Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>;
+     Author:   Jan Linblad    <mailto:jlindbla@cisco.com>";
+  description
+   "This module 
+
+    The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
+    'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
+    'NOT RECOMMENDED', 'MAY', and 'OPTIONAL' in this document
+    are to be interpreted as described in BCP 14 (RFC 2119)
+    (RFC 8174) when, and only when, they appear in all
+    capitals, as shown here.
+
+    Copyright (c) 2021 IETF Trust and the persons identified as
+    authors of the code.  All rights reserved.
+
+    Redistribution and use in source and binary forms, with or
+    without modification, is permitted pursuant to, and subject
+    to the license terms contained in, the Simplified BSD License
+    set forth in Section 4.c of the IETF Trust's Legal Provisions
+    Relating to IETF Documents
+    (https://trustee.ietf.org/license-info).
+    This version of this YANG module is part of RFC XXXX; see the
+    RFC itself for full legal notices.  ";
+
+  revision 2021-11-03 {
+    description
+      "Initial revision";
+    reference
+      "RFC xxxx: Title to be completed";
+  }
+
+  container configuration-changes {
+    config false;
+    description 
+      "Container for changes in the configuration";
+    list configuration-change {
+      key "local-commit-id";
+      description 
+        "List of configuration changes, identified by their
+        local-commit-id";
+      leaf local-commit-id {
+        type string;
+        description 
+          "Id as saved by the server. Can be used to retrieve 
+          the corresponding changes using the server mechanism 
+          if available.";
+      }
+      leaf username {
+        type string;
+        mandatory true;
+        description 
+          "Name of the user that triggered the configuration
+          change.";
+      }
+      leaf timestamp {
+        type yang:date-and-time;
+        mandatory true;
+        description 
+          "Timestamp of the configuration change";
+      }
+      leaf external-transaction-id {
+        type string;
+        description 
+           "External transaction ID, sent by the client. Can be
+           used by the client to find out the corresponding 
+           changes.";
+      }
+      leaf client-id {
+        type string;
+        description 
+           "ID of the client doing the modification, to further query 
+           information about the corresponding change.";
+      }
+      
+    }
+  }
+
+}
