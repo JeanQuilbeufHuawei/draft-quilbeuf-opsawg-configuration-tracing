@@ -1,0 +1,126 @@
+module ietf-netconf-txid {
+  yang-version 1.1;
+  namespace 
+    'urn:ietf:params:xml:ns:yang:ietf-netconf-txid';
+  prefix ietf-netconf-txid;
+
+  import ietf-netconf {
+    prefix nc;
+  }
+
+  import ietf-netconf-nmda {
+    prefix ncds;
+  }
+
+  import ietf-yang-structure-ext {
+    prefix sx;
+  }
+
+  organization
+    "IETF NETCONF (Network Configuration) Working Group";
+
+  contact
+    "WG Web:   <http://tools.ietf.org/wg/netconf/>
+     WG List:  <netconf@ietf.org>
+
+     Author:   Jan Lindblad
+               <mailto:jlindbla@cisco.com>";
+
+  description
+    "NETCONF Transaction ID aware operations for NMDA.
+
+     Copyright (c) 2021 IETF Trust and the persons identified as
+     the document authors.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Simplified BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (http://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX; see
+     the RFC itself for full legal notices.";
+
+  revision 2021-11-01 {
+    description
+      "Initial revision";
+    reference
+      "RFC XXXX: Xxxxxxxxx";
+  }
+
+  typedef etag-t {
+    type string {
+      pattern ".* .*" {
+        modifier invert-match;
+      }
+      pattern ".*\".*" {
+        modifier invert-match;
+      }
+      pattern ".*\\.*" {
+        modifier invert-match;
+      }
+    }
+    description 
+      "Unique Entity-tag value representing a specific transaction.
+       Could be any string that does not contain spaces, double 
+       quotes or backslash.  The values '?' and '=' have special
+       meaning.";
+  }
+
+  grouping transaction-id-grouping {
+    container with-etag {
+      presence 
+        "Indicates that the client requests the server to include a
+         txid:etag transaction id in the rpc-reply";
+    }
+    description
+      "Grouping for transaction id mechanisms, to be augmented into 
+       rpcs that modify configuration data stores.";
+  }
+
+  augment /nc:edit-config/nc:input {
+    uses transaction-id-grouping;
+    description
+      "Injects the transaction id mechanisms into the 
+      edit-config operation";
+  }
+
+  augment /nc:commit/nc:input {
+    uses transaction-id-grouping;
+    description
+      "Injects the transaction id mechanisms into the 
+      commit operation";
+  }
+
+  augment /ncds:edit-data/ncds:input {
+    uses transaction-id-grouping;
+    description
+      "Injects the transaction id mechanisms into the 
+      edit-data operation";
+
+  sx:structure etag-value-mismatch-error-info {
+    container etag-value-mismatch-error-info {
+      description
+         "This error is returned by a NETCONF server when a client
+          sends a configuration change request, with the additonal
+          condition that the server aborts the transaction if the
+          server's configuration has changed from what the client
+          expects, and the configuration is found not to actually
+          not match the client's expectation.";
+      leaf mismatch-path {
+        type instance-identifier;
+        description
+          "Indicates the YANG path to the element with a mismatching
+           etag value.";
+      }
+      leaf mismatch-etag-value {
+        type etag-t;
+        description
+          "Indicates server's value of the etag attribute for one
+           mismatching element.";
+      }
+    }
+  }
+}
+

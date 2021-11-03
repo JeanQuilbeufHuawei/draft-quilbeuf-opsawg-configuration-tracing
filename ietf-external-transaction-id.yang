@@ -9,6 +9,10 @@ module ietf-external-transaction-id {
     reference "RFC 6991: Common YANG Data Types";
   }
 
+  import ietf-netconf-txid {
+    prefix ietf-netconf-txid;
+  }
+
   organization
     "IETF NETCONF (Network Configuration) Working Group";
   contact
@@ -76,7 +80,7 @@ module ietf-external-transaction-id {
           "Timestamp of the configuration change";
       }
       leaf external-transaction-id {
-        type string;
+        type ietf-netconf-txid:etag-t;
         description 
            "External transaction ID, sent by the client. Can be
            used by the client to find out the corresponding 
