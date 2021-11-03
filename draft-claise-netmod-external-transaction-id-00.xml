@@ -114,7 +114,7 @@ module: ietf-external-transaction-id
         +--ro local-commit-id            string
         +--ro username                   string
         +--ro timestamp                  yang:date-and-time
-        +--ro external-transaction-id?   string
+        +--ro external-transaction-id?   ietf-netconf-txid:etag-t
         +--ro client-id?                 string
             ]]>
           </artwork>
@@ -155,6 +155,9 @@ module ietf-external-transaction-id {
     prefix yang;
     reference
       "RFC 6991: Common YANG Data Types";
+  }
+  import ietf-netconf-txid {
+    prefix ietf-netconf-txid;
   }
 
   organization
@@ -224,7 +227,7 @@ module ietf-external-transaction-id {
           "Timestamp of the configuration change";
       }
       leaf external-transaction-id {
-        type string;
+        type ietf-netconf-txid:etag-t;
         description
           "External transaction ID, sent by the client. Can be
            used by the client to find out the corresponding
