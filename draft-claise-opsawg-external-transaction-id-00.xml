@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc comments="yes"?>
+<?rfc inline="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<rfc category="std" docName="draft-claise-netmod-external-transaction-id-00">
+  <front>
+    <title abbrev="External Transaction ID">External Transaction ID for Configuration Changes</title>
+    <author fullname="Benoit Claise" initials="B" surname="Claise">
+      <organization>Huawei</organization>
+      <address>
+        <email>benoit.claise@huawei.com</email>
+      </address>
+    </author>
+    <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf ">
+      <organization>Huawei</organization>
+      <address>
+        <email>jean.quilbeuf@huawei.com</email>
+      </address>
+    </author>
+    <author initials="J." surname="Lindblad" fullname="Jan Lindblad">
+      <organization>Cisco Systems</organization>
+      <address>
+        <email>jlindbla@cisco.com</email>
+      </address>
+    </author>
+    <date/>
+    <area>OPS</area>
+    <workgroup>NETMOD</workgroup>
+    <abstract>
+      <t>
+        Network equipements are often configured by a variety of network management systems (NMS), protocols and people.
+        Each NMS might have its own task to perform and these taks can overlap, leading to two different NMS reverting each other modifications on the same network equipement.
+        Also, the configuration pushed by an NMS can be modified by an engineer or some protocol.
+        In turn, this can bring services down and desynchronize NMSs from their managed network equipement.
+        We propose a mechanism to map the configuration modifications their source, up to the service request in the case of NMSs.
+        Such a mechansims would facilitate the troubleshooting and post morterm analysis.
+        Also, in case of more automated systems, the system could automatically identify two conflicting service request, find a solution to the conflict and close the loop by sending new instructions to the conflicting NMSs.
+        This draft proposes a new YANG model to log all the configuration changes.
+        In the context of NETCONF, with compatible NMS, the model would also contain a reference provided by the NMS itself, to map back to the service request. 
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section title="Terminology" anchor="terminology">
+      <t>
+         The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+         NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
+         "MAY", and "OPTIONAL" in this document are to be interpreted as
+         described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
+         when, and only when, they appear in all capitals, as shown here.
+      </t>
+    </section>
+    <section anchor="intro" title="Introduction">
+      <t>
+        This draft focuses on cases where the network is configured by several NMS that use NETCONF <xref target="RFC6241"/> to update the configuration of the device.
+        For instance, a network service orchestrator might receive on its northbound interface a service request to create a new service instance, following a service model <xref target="RFC8309"/> described using YANG <xref target="RFC6020"/>.  
+        The orchestrator will then use NETCONF, as a client, to push the configuration needed to create the service.
+        The configured network elements, which act as NETCONF servers, are likely to keep track of the modification as part of the commit history.
+        However, the only information available about the configuration change is the username of the account that triggered the change. 
+        In particular, the source of the modification is not available.
+      </t>
+      <t>
+        In most cases, there isn’t a single NMS configuring all the devices.
+        Usually, engineer can log in directly to devices to modify the configuration.
+        Some protcols can also alter the configuration.
+        Finally, there are cases where several NMSs are concurently configuring the devices.
+      </t>
+      <t>
+        When several NMSs are used to configure the network, the same network element or NETCONF server can be configured by different NMSs or NETCONF server.
+        In that case, the configuration or services configured by the first client might be impacted by the configuration pushed by the second client.
+        That impact is not always easy to detect, especially if the first client is not aware of the modification done by the second client and thus is in a correct state internally.
+        Troubleshooting such systems might be involved. 
+        In the best case, there is a dedicated user for each client and the timestamp of the modification allows to find the reason why the second client did the modification.
+        In the worst case, everything is done by the same user and some more tricks must be done to identify the source of the second modification.
+      </t>
+      <t>
+        In order to enable automation, we need to be able to automatically detect such conflicts, analyze their cause and automatically arbitrate them at a highest level.
+        While arbitration is outside of the scope of this draft, finding out why the two NMSs are in conflict and possibly finding conflicting service requests is a good use case for this draft.
+        This requires mapping the changes seen on the devices to changes seen on the NMSs.
+      </t>
+      <t>
+        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed. 
+          The goal of this draft is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.         
+          If the current transaction ID on the server is the same as the last one known by the client, then both are synchronized. 
+          Else the client can request the diff from the latest transaction ID it knows.
+          In our case, the transaction ID could be use to make the link between the changes done on the server and the need for these changes .
+      </t>
+      <t>
+        Our proposed solution is to log every configuration modification.
+        Along with the modification, we also log, when available, the information needed to retrieve both the client and the reference for that transaction sent by the client.
+        If the client is a NMS, the request sent by the client might have been for the instantiation or modification of a new service.
+        In the end, when such a conflict is detected, we could identify the two conflicting requests and present them to the operator or to the automation framework.
+      </t>
+    </section>
+
+    <section anchor="yang-module" title="YANG Module">
+      <t> We present in this section the YANG module for modelling the information about the configuration modifications. </t>
+      <section anchor="module-tree" title="Overview">
+        <t> The tree representation <xref target="RFC8340"/> of our YANG module is depicted in <xref target="module-tree-fig"/> </t>
+        <figure anchor="module-tree-fig" title="Tree representation of ietf-external-transaction-id YANG module">
+          <artwork><![CDATA[
+module: ietf-external-transaction-id
+  +--ro configuration-changes
+     +--ro configuration-change* [local-commit-id]
+        +--ro local-commit-id            string
+        +--ro username                   string
+        +--ro timestamp                  yang:date-and-time
+        +--ro external-transaction-id?   ietf-netconf-txid:etag-t
+        +--ro client-id?                 string
+            ]]>
+          </artwork>
+        </figure>
+        <t> 
+          The local-commit-id represent the local id of the configuration changes.
+          It can be used to retrieve the local configuration changes that happend during that transaction.
+        </t>
+        <t>
+          The username and timestamp are mandatory and must contain the local
+          username that triggered the configuration change and the date at which
+          this modification occurred.
+        </t>
+        <t> 
+          The external-transaction-id is the id for the client of the transaction that lead to the changes in local-commit-id.
+          The client-id shoud identify the client that triggered the changes.
+          Both fields are optional and should be filled when the client supports it.
+        </t>
+        <t>
+          With both the client-id and the external-transaction-id, a human or a program should be able to find the source of the transaction.
+          For instance, if the client is a network service orchestrator, the source of the transaction could be a service request.
+        </t>
+        <t>
+          Q? Should we include the transition ID as a reference ? Do we target earlier adoption even in the full mechansim described in <xref target="I-D.lindblad-netconf-transaction-id"/> is not supported by the device ?
+        </t>
+      </section>
+      
+      <section anchor="module-code" title="YANG module ietf-external-transaction-id">
+        <t>&lt;CODE BEGINS&gt; file "ietf-external-transaction-id@2021-11-03.yang"</t>
+        <figure>
+          <artwork><![CDATA[
+module ietf-external-transaction-id {
+  yang-version 1.1;
+  namespace
+    "urn:ietf:params:xml:ns:yang:ietf-external-transaction-id";
+  prefix ext-txid;
+
+  import ietf-yang-types {
+    prefix yang;
+    reference
+      "RFC 6991: Common YANG Data Types";
+  }
+  import ietf-netconf-txid {
+    prefix ietf-netconf-txid;
+  }
+
+  organization
+    "IETF OPSAWG Working Group";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
+     WG List:  <mailto:opsawg@ietf.org>
+     Author:   Benoit Claise  <mailto:benoit.claise@huawei.com>
+     Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>
+     Author:   Jan Linblad    <mailto:jlindbla@cisco.com>";
+  description
+    "This module  ...
+
+     The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
+     'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
+     'NOT RECOMMENDED', 'MAY', and 'OPTIONAL' in this document
+     are to be interpreted as described in BCP 14 (RFC 2119)
+     (RFC 8174) when, and only when, they appear in all
+     capitals, as shown here.
+
+     Copyright (c) 2021 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Simplified BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+     This version of this YANG module is part of RFC XXXX; see the
+     RFC itself for full legal notices.  ";
+
+  revision 2021-11-03 {
+    description
+      "Initial revision";
+    reference
+      "RFC xxxx: Title to be completed";
+  }
+
+  container configuration-changes {
+    config false;
+    description
+      "Container for changes in the configuration";
+    list configuration-change {
+      key "local-commit-id";
+      description
+        "List of configuration changes, identified by their
+         local-commit-id";
+      leaf local-commit-id {
+        type string;
+        description
+          "Id as saved by the server. Can be used to retrieve
+           the corresponding changes using the server mechanism
+           if available.";
+      }
+      leaf username {
+        type string;
+        mandatory true;
+        description
+          "Name of the user that triggered the configuration
+           change.";
+      }
+      leaf timestamp {
+        type yang:date-and-time;
+        mandatory true;
+        description
+          "Timestamp of the configuration change";
+      }
+      leaf external-transaction-id {
+        type ietf-netconf-txid:etag-t;
+        description
+          "External transaction ID, sent by the client. Can be
+           used by the client to find out the corresponding
+           changes.";
+      }
+      leaf client-id {
+        type string;
+        description
+          "ID of the client doing the modification, to further query
+           information about the corresponding change.";
+      }
+    }
+  }
+}
+    ]]></artwork>
+        </figure>
+        <t>&lt;CODE ENDS&gt;</t>
+      </section>
+    </section>
+
+    <section anchor="security" title="Security Considerations">
+    </section>
+    <section anchor="iana" title="IANA Considerations">
+      <t>
+        This document includes no request to IANA.
+      </t>
+    </section>
+    <section title="Contributors">
+    </section>
+    <section title="Open Issues">
+      <t>
+        ...
+      </t>
+    </section>
+  </middle>
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119"?>
+      <?rfc include="reference.RFC.8174"?>
+      <?rfc include="reference.RFC.6020"?>
+      <?rfc include="reference.RFC.6241"?>
+      <?rfc include="reference.RFC.8340"?>
+    </references>
+    <references title="Informative References">
+      <?rfc include="reference.RFC.8309"?>
+      <?rfc include="reference.RFC.8199"?>
+      <?rfc include="reference.I-D.draft-lindblad-netconf-transaction-id-00"?>
+    </references>
+    <?rfc needLines="100"?>
+    <section title="Changes between revisions">
+      <t> Initial version
+      </t>
+    </section>
+    <section title="Acknowledgements" numbered="no">
+      <t>
+          ...
+        </t>
+    </section>
+  </back>
+</rfc>
+<!-- Local Variables: -->
+<!-- fill-column:72 -->
+<!-- End: -->

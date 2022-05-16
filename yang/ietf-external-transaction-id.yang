@@ -14,15 +14,15 @@ module ietf-external-transaction-id {
   }
 
   organization
-    "IETF NETCONF (Network Configuration) Working Group";
+    "IETF OPSAWG Working Group";
   contact
-    "WG Web:   <https://datatracker.ietf.org/wg/netconf/>
-     WG List:  <mailto:netconf@ietf.org>
+    "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
+     WG List:  <mailto:opsawg@ietf.org>
      Author:   Benoit Claise  <mailto:benoit.claise@huawei.com>
-     Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>;
+     Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>
      Author:   Jan Linblad    <mailto:jlindbla@cisco.com>";
   description
-   "This module 
+   "This module  ...
 
     The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
     'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
