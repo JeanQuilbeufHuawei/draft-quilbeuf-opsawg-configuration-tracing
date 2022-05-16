@@ -15,21 +15,21 @@ Expires: November 17, 2022                                   J. Lindblad
 
 Abstract
 
-   Network equipements are often configured by a variety of network
+   Network equipments are often configured by a variety of network
    management systems (NMS), protocols and people.  Each NMS might have
-   its own task to perform and these taks can overlap, leading to two
+   its own task to perform and these tasks can overlap, leading to two
    different NMS reverting each other modifications on the same network
-   equipement.  Also, the configuration pushed by an NMS can be modified
+   equipment.  Also, the configuration pushed by an NMS can be modified
    by an engineer or some protocol.  In turn, this can bring services
-   down and desynchronize NMSs from their managed network equipement.
+   down and de-synchronize NMSs from their managed network equipment.
    We propose a mechanism to map the configuration modifications their
    source, up to the service request in the case of NMSs.  Such a
-   mechansims would facilitate the troubleshooting and post morterm
+   mechanism would facilitate the troubleshooting and post mortem
    analysis.  Also, in case of more automated systems, the system could
    automatically identify two conflicting service request, find a
    solution to the conflict and close the loop by sending new
-   instructions to the conflicting NMSs.  This draft proposes a new YANG
-   model to log all the configuration changes.  In the context of
+   instructions to the conflicting NMSs.  This document proposes a new
+   YANG model to log all the configuration changes.  In the context of
    NETCONF, with compatible NMS, the model would also contain a
    reference provided by the NMS itself, to map back to the service
    request.
@@ -101,7 +101,7 @@ Table of Contents
 
 2.  Introduction
 
-   This draft focuses on cases where the network is configured by
+   This document focuses on cases where the network is configured by
    several NMS that use NETCONF [RFC6241] to update the configuration of
    the device.  For instance, a network service orchestrator might
    receive on its northbound interface a service request to create a new
@@ -124,8 +124,8 @@ Internet-Draft           External Transaction ID                May 2022
 
    In most cases, there isn't a single NMS configuring all the devices.
    Usually, engineer can log in directly to devices to modify the
-   configuration.  Some protcols can also alter the configuration.
-   Finally, there are cases where several NMSs are concurently
+   configuration.  Some protocols can also alter the configuration.
+   Finally, there are cases where several NMSs are concurrently
    configuring the devices.
 
    When several NMSs are used to configure the network, the same network
@@ -145,13 +145,13 @@ Internet-Draft           External Transaction ID                May 2022
    In order to enable automation, we need to be able to automatically
    detect such conflicts, analyze their cause and automatically
    arbitrate them at a highest level.  While arbitration is outside of
-   the scope of this draft, finding out why the two NMSs are in conflict
-   and possibly finding conflicting service requests is a good use case
-   for this draft.  This requires mapping the changes seen on the
-   devices to changes seen on the NMSs.
+   the scope of this document, finding out why the two NMSs are in
+   conflict and possibly finding conflicting service requests is a good
+   use case for this document.  This requires mapping the changes seen
+   on the devices to changes seen on the NMSs.
 
    In [I-D.lindblad-netconf-transaction-id], the concept of a NETCONF
-   transaction ID is proposed.  The goal of this draft is to speed up
+   transaction ID is proposed.  The goal of this document is to speed up
    the re-synchronization process between a client and a server, by
    using a common transaction ID.  If the current transaction ID on the
    server is the same as the last one known by the client, then both are
@@ -202,7 +202,7 @@ Internet-Draft           External Transaction ID                May 2022
 
    The local-commit-id represent the local id of the configuration
    changes.  It can be used to retrieve the local configuration changes
-   that happend during that transaction.
+   that happened during that transaction.
 
    The username and timestamp are mandatory and must contain the local
    username that triggered the configuration change and the date at
@@ -210,8 +210,8 @@ Internet-Draft           External Transaction ID                May 2022
 
    The external-transaction-id is the id for the client of the
    transaction that lead to the changes in local-commit-id.  The client-
-   id shoud identify the client that triggered the changes.  Both fields
-   are optional and should be filled when the client supports it.
+   id should identify the client that triggered the changes.  Both
+   fields are optional and should be filled when the client supports it.
 
    With both the client-id and the external-transaction-id, a human or a
    program should be able to find the source of the transaction.  For
@@ -227,7 +227,7 @@ Internet-Draft           External Transaction ID                May 2022
 
 
    Q?  Should we include the transition ID as a reference ? Do we target
-   earlier adoption even in the full mechansim described in
+   earlier adoption even in the full mechanism described in
    [I-D.lindblad-netconf-transaction-id] is not supported by the device
    ?
 
