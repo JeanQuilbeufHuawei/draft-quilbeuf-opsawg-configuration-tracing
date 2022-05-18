@@ -44,7 +44,7 @@
         We propose a mechanism to map the configuration modifications their source, up to the service request in the case of NMSs.
         Such a mechanism would facilitate the troubleshooting and post mortem analysis.
         Also, in case of more automated systems, the system could automatically identify two conflicting service request, find a solution to the conflict and close the loop by sending new instructions to the conflicting NMSs.
-        This document proposes a new YANG model to log all the configuration changes.
+        This document proposes a new YANG model to map a local configuration change to corresponding northbound and southbound transactions, if any.
         In the context of NETCONF, with compatible NMS, the model would also contain a reference provided by the NMS itself, to map back to the service request. 
       </t>
     </abstract>
@@ -58,6 +58,20 @@
          described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
          when, and only when, they appear in all capitals, as shown here.
       </t>
+      <t>
+        TODO: define or reuse existing definitions
+        <list>
+          <t>client</t>
+          <t>server</t>
+          <t>orchestrator</t>
+          <t>controller</t>
+          <t>network equipment</t>
+          <t>transaction</t>
+          <t>transaction id</t>
+          <t>commit (configuration), or equivalent</t>
+          <t>NMS</t>
+        </list>
+      </t>
     </section>
     <section anchor="intro" title="Introduction">
       <t>
@@ -65,7 +79,7 @@
         For instance, a network service orchestrator might receive on its northbound interface a service request to create a new service instance, following a service model <xref target="RFC8309"/> described using YANG <xref target="RFC6020"/>.  
         The orchestrator will then use NETCONF, as a client, to push the configuration needed to create the service.
         The configured network elements, which act as NETCONF servers, are likely to keep track of the modification as part of the commit history.
-        However, the only information available about the configuration change is the username of the account that triggered the change. 
+        However, the only information available about the configuration change usually contains is the username of the account that triggered the change, the date and the protocol used.
         In particular, the source of the modification is not available.
       </t>
       <t>
@@ -89,16 +103,27 @@
       </t>
       <t>
         In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed. 
-          The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
-          If the current transaction ID on the server is the same as the last one known by the client, then both are synchronized. 
-          Else the client can request the diff from the latest transaction ID it knows.
-          In our case, the transaction ID could be use to make the link between the changes done on the server and the need for these changes .
+        The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
+        If the current transaction ID on the server is the same as the last one known by the client, then both are synchronized.
+        Else the client can request the diff from the latest transaction ID it knows.
+        In our case, the transaction ID could be use to make the link between the changes done on the server and the need for these changes.
       </t>
       <t>
-        Our proposed solution is to log every configuration modification.
-        Along with the modification, we also log, when available, the information needed to retrieve both the client and the reference for that transaction sent by the client.
-        If the client is a NMS, the request sent by the client might have been for the instantiation or modification of a new service.
-        In the end, when such a conflict is detected, we could identify the two conflicting requests and present them to the operator or to the automation framework.
+        Our proposed solution is to store a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
+        The mapping is read only and populated by the server at configuration time.
+      </t>
+      <t>
+        If the server is configured by an enabled client, then the client must send a transaction-ID and its own ID.
+        The server stores both as northbound transaction ID and corresponding client ID.
+      </t>
+      <t>
+        If the server has to configure some other servers in response to a local configuration change, then it generates
+        a transaction ID, sends it along with its ID to the other servers, and saves it as a southbound transaction ID.
+      </t>
+      <t>
+        The two cases above are not mutually exclusive. A controller can be configured by an Orchestrator and configure network equipment in turn.
+        In that case, both the northbound transaction ID, shared with the orchestrator and the southbound transaction ID, shared with the network equipments, are stored.
+        They are both associated to the corresponding local configuration commit.
       </t>
     </section>
 
@@ -113,25 +138,17 @@
           </artwork>
         </figure>
         <t> 
-          The local-commit-id represent the local id of the configuration changes.
+          The local-commit-id represents the local id of the configuration changes.
           It can be used to retrieve the local configuration changes that happened during that transaction.
         </t>
         <t>
-          The username and timestamp are mandatory and must contain the local
-          username that triggered the configuration change and the date at which
-          this modification occurred.
-        </t>
-        <t> 
-          The external-transaction-id is the id for the client of the transaction that lead to the changes in local-commit-id.
-          The client-id should identify the client that triggered the changes.
-          Both fields are optional and should be filled when the client supports it.
+          The northbound-transaction-id should be present when the server is configured by a client supporting the external transaction ID.
+          In that case, the northbound-client-id is mandatory.
+          The value of both fields are sent by the client whenever it sends the configuration that trigger the changes associated to the local-commit-id.
         </t>
         <t>
-          With both the client-id and the external-transaction-id, a human or a program should be able to find the source of the transaction.
-          For instance, if the client is a network service orchestrator, the source of the transaction could be a service request.
-        </t>
-        <t>
-          Q? Should we include the transition ID as a reference ? Do we target earlier adoption even in the full mechanism described in <xref target="I-D.lindblad-netconf-transaction-id"/> is not supported by the device ?
+          The southbound-transaction-id should be present when the current configuration change leads to the configuration of other devices.
+          In that case, the southbound-transaction-id should be generated by the server (and unique among other southbound-transaction-id fields generated on this server), sent to the configured devices and saved in that field.
         </t>
       </section>
       
@@ -157,7 +174,16 @@
     </section>
     <section title="Open Issues">
       <t>
-        ...
+        <list>
+          <t>
+            Do we restrict to NETCONF or generalize to any automated configuration framework?
+          </t>
+          <t>
+            It seems that most problems associated to assigning a configuration
+            to a commit are already solved by the current state of NETCONF.
+            We want to make sure that when multiple NMS are configuring the same device at the same time, the respective configuration pushed by X is saved in the commit associated to X.
+          </t>
+        </list>
       </t>
     </section>
   </middle>
@@ -177,6 +203,33 @@
     <?rfc needLines="100"?>
     <section title="Changes between revisions">
       <t> Initial version
+      </t>
+    </section>
+    <section anchor="usage" title="Tracing configuration changes">
+      <t>
+        The model above enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
+        To do so, the software doing the tracing should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
+        It should as well have access to the network equipments in which an issue is detected.
+      </t>
+      <t>
+        The first step is to identify the commit id that created an issue.
+        This step is not defined here, we assume that the software is able to identify a commit id.
+      </t>
+      <t>
+          The software can match the commit-id with the local-commit-id of our model.
+          If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here.
+      </t>
+      <t>
+        Otherwise, the software connects to the NMS identified by the northbound-client-id.
+        The software looks for the northbound-transaction-id from the previous step in the southbound-transaction-id of the NMS.
+      </t>
+      <t>
+        From that query, the software knows the local-commit-id on the NMS.
+        If the local-commit-id is associated to a northbound-transaction-id, the software can iterate the previous step with the NMS identified by the northbound-client-id field.
+      </t>
+      <t>
+        Finally, the local-commit-id points to the changes in topmost NMS that eventually triggered the problematic configuration in the network equipment.
+        These changes are now available for further manual or automated analysis.
       </t>
     </section>
     <section title="Acknowledgements" numbered="no">
