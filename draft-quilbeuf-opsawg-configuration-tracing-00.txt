@@ -2,16 +2,16 @@
 
 
 
-NETMOD                                                         B. Claise
-Internet-Draft                                               J. Quilbeuf
+OPSAWG                                                       J. Quilbeuf
+Internet-Draft                                                 B. Claise
 Intended status: Standards Track                                  Huawei
-Expires: November 19, 2022                                   J. Lindblad
+Expires: February 19, 2023                                   J. Lindblad
                                                            Cisco Systems
-                                                            May 18, 2022
+                                                         August 18, 2022
 
 
-           External Transaction ID for Configuration Changes
-             draft-claise-netmod-external-transaction-id-00
+           External Transaction ID for Configuration Tracing
+             draft-quilbeuf-opsawg-configuration-tracing-00
 
 Abstract
 
@@ -26,7 +26,7 @@ Abstract
    source, up to the service request in the case of NMSs.  Such a
    mechanism would facilitate the troubleshooting and post mortem
    analysis.  Also, in case of more automated systems, the system could
-   automatically identify two conflicting service request, find a
+   automatically identify two conflicting service requests, find a
    solution to the conflict and close the loop by sending new
    instructions to the conflicting NMSs.  This document proposes a new
    YANG model to map a local configuration change to corresponding
@@ -53,12 +53,12 @@ Status of This Memo
 
 
 
-Claise, et al.          Expires November 19, 2022               [Page 1]
+Quilbeuf , et al.       Expires February 19, 2023               [Page 1]
 
-Internet-Draft           External Transaction ID                May 2022
+Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
-   This Internet-Draft will expire on November 19, 2022.
+   This Internet-Draft will expire on February 19, 2023.
 
 Copyright Notice
 
@@ -80,19 +80,19 @@ Table of Contents
    1.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  YANG Module . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     3.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   5
+     3.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.2.  YANG module ietf-external-transaction-id  . . . . . . . .   5
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
-   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
-   6.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .   8
-   7.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   6.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .   7
+   7.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   7
    8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
      8.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .   9
-   Appendix A.  Changes between revisions  . . . . . . . . . . . . .   9
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Changes between revisions  . . . . . . . . . . . . .   8
    Appendix B.  Tracing configuration changes  . . . . . . . . . . .   9
-   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  10
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   9
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Terminology
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Claise, et al.          Expires November 19, 2022               [Page 2]
+Quilbeuf , et al.       Expires February 19, 2023               [Page 2]
 
-Internet-Draft           External Transaction ID                May 2022
+Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
       server
@@ -132,55 +132,29 @@ Internet-Draft           External Transaction ID                May 2022
 
 2.  Introduction
 
-   This document focuses on cases where the network is configured by
-   several NMS that use NETCONF [RFC6241] to update the configuration of
-   the device.  For instance, a network service orchestrator might
-   receive on its northbound interface a service request to create a new
-   service instance, following a service model [RFC8309] described using
-   YANG [RFC6020].  The orchestrator will then use NETCONF, as a client,
-   to push the configuration needed to create the service.  The
-   configured network elements, which act as NETCONF servers, are likely
-   to keep track of the modification as part of the commit history.
-   However, the only information available about the configuration
-   change usually contains is the username of the account that triggered
-   the change, the date and the protocol used.  In particular, the
-   source of the modification is not available.
-
-   In most cases, there isn't a single NMS configuring all the devices.
-   Usually, engineer can log in directly to devices to modify the
-   configuration.  Some protocols can also alter the configuration.
-   Finally, there are cases where several NMSs are concurrently
-   configuring the devices.
-
    When several NMSs are used to configure the network, the same network
-   element or NETCONF server can be configured by different NMSs or
-   NETCONF server.  In that case, the configuration or services
+   element or NETCONF [RFC6241] server can be configured by different
+   NMSs or NETCONF clients.  In that case, the configuration or services
    configured by the first client might be impacted by the configuration
    pushed by the second client.  That impact is not always easy to
    detect, especially if the first client is not aware of the
    modification done by the second client and thus is in a correct state
-   internally.  Troubleshooting such systems might be involved.  In the
-   best case, there is a dedicated user for each client and the
-   timestamp of the modification allows to find the reason why the
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 3]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
-   second client did the modification.  In the worst case, everything is
-   done by the same user and some more tricks must be done to identify
-   the source of the second modification.
+   internally, so no NMS would report an error.  If an issue arise, the
+   starting point for investigation is likely to be the configuration
+   modification on a given device.  In the best case, there is a
+   dedicated user for each client and the timestamp of the modification
+   allows finding the reason why the second client did the modification.
+   In the worst case, everything is done by the same user and some more
+   tricks must be done to identify the source of the second
+   modification.
 
    In order to enable automation, we need to be able to automatically
    detect such conflicts, analyze their cause and automatically
-   arbitrate them at a highest level.  While arbitration is outside of
+   arbitrate them at a higher level.  While arbitration is outside of
    the scope of this document, finding out why the two NMSs are in
    conflict and possibly finding conflicting service requests is a good
-   use case for this document.  This requires mapping the changes seen
-   on the devices to changes seen on the NMSs.
+   use case for this document.  We propose to annotate configuration
+   changes done on the
 
    In [I-D.lindblad-netconf-transaction-id], the concept of a NETCONF
    transaction ID is proposed.  The goal of this document is to speed up
@@ -188,8 +162,16 @@ Internet-Draft           External Transaction ID                May 2022
    using a common transaction ID.  If the current transaction ID on the
    server is the same as the last one known by the client, then both are
    synchronized.  Else the client can request the diff from the latest
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 3]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
    transaction ID it knows.  In our case, the transaction ID could be
-   use to make the link between the changes done on the server and the
+   used to make the link between the changes done on the server and the
    need for these changes.
 
    Our proposed solution is to store a mapping between the existing
@@ -218,14 +200,6 @@ Internet-Draft           External Transaction ID                May 2022
    We present in this section the YANG module for modelling the
    information about the configuration modifications.
 
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 4]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
 3.1.  Overview
 
    The tree representation [RFC8340] of our YANG module is depicted in
@@ -242,6 +216,15 @@ Internet-Draft           External Transaction ID                May 2022
 
     Figure 1: Tree representation of ietf-external-transaction-id YANG
                                   module
+
+
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 4]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
 
    The local-commit-id represents the local id of the configuration
    changes.  It can be used to retrieve the local configuration changes
@@ -274,14 +257,6 @@ module ietf-external-transaction-id {
     prefix ietf-netconf-txid;
   }
 
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 5]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
   organization
     "IETF OPSAWG Working Group";
   contact
@@ -299,6 +274,14 @@ Internet-Draft           External Transaction ID                May 2022
      The main usage of this module is to map a local configuration
      change to a northbound transaction ID that can be retrieved as
      southbound transaction ID on the configuring NMS, or to map a
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 5]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
      southbound transaction ID to a northbound transaction ID on devices
      that are both configured and configuring other devices.
 
@@ -330,14 +313,6 @@ Internet-Draft           External Transaction ID                May 2022
 
   container external-transactions-id {
     config false;
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 6]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
     description
       "Contains the IDs of configuration transactions that are external
        to the current device.";
@@ -355,6 +330,14 @@ Internet-Draft           External Transaction ID                May 2022
       }
       leaf northbound-transaction-id {
         type ietf-netconf-txid:etag-t;
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 6]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
         description
           "External transaction ID, sent by the client, corresponding
            to a change initiated by a northbound NMS. There should be a
@@ -386,14 +369,6 @@ Internet-Draft           External Transaction ID                May 2022
 
    <CODE ENDS>
 
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 7]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
 4.  Security Considerations
 
 5.  IANA Considerations
@@ -405,13 +380,22 @@ Internet-Draft           External Transaction ID                May 2022
 7.  Open Issues
 
       Do we restrict to NETCONF or generalize to any automated
-      configuration framework?
+      configuration framework?  For instance, should a NMS that would
+      use CLI to configure be supported by this draft as well?
 
-      It seems that most problems associated to assigning a
-      configuration to a commit are already solved by the current state
-      of NETCONF.  We want to make sure that when multiple NMS are
-      configuring the same device at the same time, the respective
-      configuration pushed by X is saved in the commit associated to X.
+      Terminology: NMS?  Orchestrator?  Controller?  NETCONF if we
+      retrict to NETCONF?
+
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 7]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
+      Is there an existing YANG module for storing the configuration
+      changes?
 
 8.  References
 
@@ -440,22 +424,14 @@ Internet-Draft           External Transaction ID                May 2022
               BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
               <https://www.rfc-editor.org/info/rfc8340>.
 
-
-
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 8]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
 8.2.  Informative References
 
    [I-D.lindblad-netconf-transaction-id]
               Lindblad, J., "Transaction ID Mechanism for NETCONF",
               draft-lindblad-netconf-transaction-id-00 (work in
-              progress), November 2020.
+              progress), November 2020,
+              <https://www.ietf.org/archive/id/draft-lindblad-netconf-
+              transaction-id-00.txt>.
 
    [RFC8199]  Bogdanovic, D., Claise, B., and C. Moberg, "YANG Module
               Classification", RFC 8199, DOI 10.17487/RFC8199, July
@@ -466,6 +442,13 @@ Internet-Draft           External Transaction ID                May 2022
               <https://www.rfc-editor.org/info/rfc8309>.
 
 Appendix A.  Changes between revisions
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 8]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
 
    Initial version
 
@@ -497,15 +480,6 @@ Appendix B.  Tracing configuration changes
    the software can iterate the previous step with the NMS identified by
    the northbound-client-id field.
 
-
-
-
-
-Claise, et al.          Expires November 19, 2022               [Page 9]
-
-Internet-Draft           External Transaction ID                May 2022
-
-
    Finally, the local-commit-id points to the changes in topmost NMS
    that eventually triggered the problematic configuration in the
    network equipment.  These changes are now available for further
@@ -517,16 +491,25 @@ Acknowledgements
 
 Authors' Addresses
 
-   Benoit Claise
-   Huawei
-
-   Email: benoit.claise@huawei.com
-
-
    Jean Quilbeuf
    Huawei
 
    Email: jean.quilbeuf@huawei.com
+
+
+
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023               [Page 9]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
+   Benoit Claise
+   Huawei
+
+   Email: benoit.claise@huawei.com
 
 
    Jan Lindblad
@@ -557,4 +540,21 @@ Authors' Addresses
 
 
 
-Claise, et al.          Expires November 19, 2022              [Page 10]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf , et al.       Expires February 19, 2023              [Page 10]

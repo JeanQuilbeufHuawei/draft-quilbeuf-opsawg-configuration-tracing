@@ -11,19 +11,19 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="std" docName="draft-claise-netmod-external-transaction-id-00">
+<rfc category="std" docName="draft-quilbeuf-opsawg-configuration-tracing-00">
   <front>
-    <title abbrev="External Transaction ID">External Transaction ID for Configuration Changes</title>
-    <author fullname="Benoit Claise" initials="B" surname="Claise">
-      <organization>Huawei</organization>
-      <address>
-        <email>benoit.claise@huawei.com</email>
-      </address>
-    </author>
+    <title abbrev="Configuration Tracing via tx-id">External Transaction ID for Configuration Tracing</title>
     <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf ">
       <organization>Huawei</organization>
       <address>
         <email>jean.quilbeuf@huawei.com</email>
+      </address>
+    </author> 
+    <author fullname="Benoit Claise" initials="B" surname="Claise">
+      <organization>Huawei</organization>
+      <address>
+        <email>benoit.claise@huawei.com</email>
       </address>
     </author>
     <author initials="J." surname="Lindblad" fullname="Jan Lindblad">
@@ -34,7 +34,7 @@
     </author>
     <date/>
     <area>OPS</area>
-    <workgroup>NETMOD</workgroup>
+    <workgroup>OPSAWG</workgroup>
     <abstract>
       <t>
         Network equipments are often configured by a variety of network management systems (NMS), protocols and people.
@@ -43,7 +43,7 @@
         In turn, this can bring services down and de-synchronize NMSs from their managed network equipment.
         We propose a mechanism to map the configuration modifications their source, up to the service request in the case of NMSs.
         Such a mechanism would facilitate the troubleshooting and post mortem analysis.
-        Also, in case of more automated systems, the system could automatically identify two conflicting service request, find a solution to the conflict and close the loop by sending new instructions to the conflicting NMSs.
+        Also, in case of more automated systems, the system could automatically identify two conflicting service requests, find a solution to the conflict and close the loop by sending new instructions to the conflicting NMSs.
         This document proposes a new YANG model to map a local configuration change to corresponding northbound and southbound transactions, if any.
         In the context of NETCONF, with compatible NMS, the model would also contain a reference provided by the NMS itself, to map back to the service request. 
       </t>
@@ -74,8 +74,9 @@
       </t>
     </section>
     <section anchor="intro" title="Introduction">
-      <t>
-        This document focuses on cases where the network is configured by several NMS that use NETCONF <xref target="RFC6241"/> to update the configuration of the device.
+      
+      <!-- <t>
+        This document focuses on cases where the network is configured by several NMS that use NETCONF  to update the configuration of the device.
         For instance, a network service orchestrator might receive on its northbound interface a service request to create a new service instance, following a service model <xref target="RFC8309"/> described using YANG <xref target="RFC6020"/>.  
         The orchestrator will then use NETCONF, as a client, to push the configuration needed to create the service.
         The configured network elements, which act as NETCONF servers, are likely to keep track of the modification as part of the commit history.
@@ -83,30 +84,33 @@
         In particular, the source of the modification is not available.
       </t>
       <t>
-        In most cases, there isn’t a single NMS configuring all the devices.
+        In most cases, there isn't a single NMS configuring all the devices.
         Usually, engineer can log in directly to devices to modify the configuration.
         Some protocols can also alter the configuration.
         Finally, there are cases where several NMSs are concurrently configuring the devices.
-      </t>
-      <t>
-        When several NMSs are used to configure the network, the same network element or NETCONF server can be configured by different NMSs or NETCONF server.
+      </t> -->
+
+      <t> <!-- Troubleshooting network is involved when several NMS are used. -->
+        When several NMSs are used to configure the network, the same network element or NETCONF <xref target="RFC6241"/> server can be configured by different NMSs or NETCONF clients.
         In that case, the configuration or services configured by the first client might be impacted by the configuration pushed by the second client.
-        That impact is not always easy to detect, especially if the first client is not aware of the modification done by the second client and thus is in a correct state internally.
-        Troubleshooting such systems might be involved. 
-        In the best case, there is a dedicated user for each client and the timestamp of the modification allows to find the reason why the second client did the modification.
+        That impact is not always easy to detect, especially if the first client is not aware of the modification done by the second client and thus is in a correct state internally, so no NMS would report an error.
+        If an issue arise, the starting point for investigation is likely to be the configuration modification on a given device.
+        In the best case, there is a dedicated user for each client and the timestamp of the modification allows finding the reason why the second client did the modification.
         In the worst case, everything is done by the same user and some more tricks must be done to identify the source of the second modification.
       </t>
       <t>
-        In order to enable automation, we need to be able to automatically detect such conflicts, analyze their cause and automatically arbitrate them at a highest level.
+        Two NMSs requesting different configurations for the same NE are in conflict.
+        In order to enable automation, we need to be able to automatically detect such conflicts, analyze their cause and automatically arbitrate them at a higher level.
         While arbitration is outside of the scope of this document, finding out why the two NMSs are in conflict and possibly finding conflicting service requests is a good use case for this document.
-        This requires mapping the changes seen on the devices to changes seen on the NMSs.
+        Our proposition is to annotate configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any, on the element that requested the configuration modification.
       </t>
       <t>
-        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed. 
+        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
         The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
-        If the current transaction ID on the server is the same as the last one known by the client, then both are synchronized.
-        Else the client can request the diff from the latest transaction ID it knows.
-        In our case, the transaction ID could be use to make the link between the changes done on the server and the need for these changes.
+        If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
+        Otherwise, the client has to fetch again the configuration.
+        The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
+        In the later case, only versioned nodes for which the transaction ID differs need to be updated.
       </t>
       <t>
         Our proposed solution is to store a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
@@ -175,14 +179,9 @@
     <section title="Open Issues">
       <t>
         <list>
-          <t>
-            Do we restrict to NETCONF or generalize to any automated configuration framework?
-          </t>
-          <t>
-            It seems that most problems associated to assigning a configuration
-            to a commit are already solved by the current state of NETCONF.
-            We want to make sure that when multiple NMS are configuring the same device at the same time, the respective configuration pushed by X is saved in the commit associated to X.
-          </t>
+          <t> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </t>
+          <t> Terminology: NMS? Orchestrator? Controller? NETCONF if we retrict to NETCONF? </t>
+          <t> Is there an existing YANG module for storing the configuration changes? </t>
         </list>
       </t>
     </section>
