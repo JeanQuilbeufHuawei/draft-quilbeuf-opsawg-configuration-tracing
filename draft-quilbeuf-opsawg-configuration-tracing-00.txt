@@ -5,9 +5,7 @@
 OPSAWG                                                       J. Quilbeuf
 Internet-Draft                                                 B. Claise
 Intended status: Standards Track                                  Huawei
-Expires: February 19, 2023                                   J. Lindblad
-                                                           Cisco Systems
-                                                         August 18, 2022
+Expires: February 19, 2023                               August 18, 2022
 
 
            External Transaction ID for Configuration Tracing
@@ -50,15 +48,15 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
+   This Internet-Draft will expire on February 19, 2023.
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 1]
+
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 1]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
-
-   This Internet-Draft will expire on February 19, 2023.
 
 Copyright Notice
 
@@ -106,15 +104,15 @@ Table of Contents
 
       client
 
+      server
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 2]
+
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 2]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
-
-      server
 
       orchestrator
 
@@ -162,16 +160,16 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
    In [I-D.lindblad-netconf-transaction-id], the concept of a NETCONF
    transaction ID is proposed, to match the same mechanism from RESTCONF
    [RFC8040].  The goal of this document is to speed up the re-
+   synchronization process between a client and a server, by using a
+   common transaction ID.  If the current transaction ID on the server
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 3]
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 3]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
-   synchronization process between a client and a server, by using a
-   common transaction ID.  If the current transaction ID on the server
    is the same as the transaction ID known by the client, then both are
    synchronized.  Otherwise, the client has to fetch again the
    configuration.  The transaction ID can be applied to the whole
@@ -221,7 +219,9 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 4]
+
+
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 4]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
@@ -277,7 +277,7 @@ module ietf-external-transaction-id {
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 5]
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 5]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
@@ -333,7 +333,7 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 6]
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 6]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
@@ -389,7 +389,7 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 7]
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 7]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
@@ -445,7 +445,7 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 8]
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 8]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
@@ -501,7 +501,7 @@ Appendix B.  Tracing configuration changes
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023               [Page 9]
+Quilbeuf  & Claise      Expires February 19, 2023               [Page 9]
 
 Internet-Draft       Configuration Tracing via tx-id         August 2022
 
@@ -534,10 +534,6 @@ Authors' Addresses
    Email: benoit.claise@huawei.com
 
 
-   Jan Lindblad
-   Cisco Systems
-
-   Email: jlindbla@cisco.com
 
 
 
@@ -557,4 +553,8 @@ Authors' Addresses
 
 
 
-Quilbeuf , et al.       Expires February 19, 2023              [Page 10]
+
+
+
+
+Quilbeuf  & Claise      Expires February 19, 2023              [Page 10]
