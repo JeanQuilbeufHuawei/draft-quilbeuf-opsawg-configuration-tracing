@@ -99,16 +99,18 @@
         In the worst case, everything is done by the same user and some more tricks must be done to identify the source of the second modification.
       </t>
       <t>
+        Two NMSs requesting different configurations for the same NE are in conflict.
         In order to enable automation, we need to be able to automatically detect such conflicts, analyze their cause and automatically arbitrate them at a higher level.
         While arbitration is outside of the scope of this document, finding out why the two NMSs are in conflict and possibly finding conflicting service requests is a good use case for this document.
-        We propose to annotate configuration changes done on the 
+        Our proposition is to annotate configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any, on the element that requested the configuration modification.
       </t>
       <t>
-        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed. 
+        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
         The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
-        If the current transaction ID on the server is the same as the last one known by the client, then both are synchronized.
-        Else the client can request the diff from the latest transaction ID it knows.
-        In our case, the transaction ID could be used to make the link between the changes done on the server and the need for these changes.
+        If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
+        Otherwise, the client has to fetch again the configuration.
+        The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
+        In the later case, only versioned nodes for which the transaction ID differs need to be updated.
       </t>
       <t>
         Our proposed solution is to store a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
@@ -295,14 +297,15 @@ module ietf-external-transaction-id {
   <back>
     <references title="Normative References">
       <?rfc include="reference.RFC.2119"?>
-      <?rfc include="reference.RFC.8174"?>
       <?rfc include="reference.RFC.6020"?>
       <?rfc include="reference.RFC.6241"?>
+      <?rfc include="reference.RFC.8174"?>
       <?rfc include="reference.RFC.8340"?>
     </references>
     <references title="Informative References">
-      <?rfc include="reference.RFC.8309"?>
+      <?rfc include="reference.RFC.8040"?>
       <?rfc include="reference.RFC.8199"?>
+      <?rfc include="reference.RFC.8309"?>
       <?rfc include="reference.I-D.draft-lindblad-netconf-transaction-id-00"?>
     </references>
     <?rfc needLines="100"?>
