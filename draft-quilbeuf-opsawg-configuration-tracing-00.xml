@@ -33,7 +33,7 @@
       <t>
         Network equipments are often configured by a variety of network management systems (NMS), protocols and people.
         Each NMS might have its own task to perform and these tasks can overlap, leading to two different NMS pushing configuration modifications to the same network equipment.
-        If an issue arises because of such a concurrent modification of the configuration, it might be hard to map each configuration modification to its originating NMS and obtain the reason for pushing that modification.
+        If an issue arises because of a modification of the configuration, it might be hard to map the guilty modification to its originating NMS and obtain the reason for pushing that modification.
         We propose a mechanism to automatically map the configuration modifications their source, up to the service request in the case of NMSs.
         Such a mechanism is required for autonomous networks, for instance to trace the reason of a particular configuration change that lead to an anomaly detection or a broken SLA.
         Such a mechanism would also facilitate the troubleshooting and post mortem analysis.
@@ -59,45 +59,27 @@
         Finally, there are cases where several NMSs are concurrently configuring the devices.
       </t> -->
 
-      <t> <!-- Troubleshooting network is involved when several NMS are used. -->
-        When several NMSs are used to configure the network, the same network element or NETCONF <xref target="RFC6241"/> server can be configured by different NMSs or NETCONF clients.
-        In that case, the configuration or services configured by the first client might be impacted by the configuration pushed by the second client.
-        That impact is not always easy to detect, especially if the first client is not aware of the modification done by the second client and thus is in a correct state internally, so no NMS would report an error.
-        If an issue arise, the starting point for investigation is likely to be the configuration modification on a given device.
-        In the best case, there is a dedicated user for each client and the timestamp of the modification allows finding the reason why the second client did the modification.
-        In the worst case, everything is done by the same user and some more tricks must be done to identify the source of the second modification.
+      <t> <!-- Problem due to configuration change require configuration tracing. -->
+        Issues arising in the network, for instance violation of some SLAs, might be due to some configuration modification.
+        In the context of automated networks, the software needs not only to identify and revert the problematic configuration modification, but also to make sure that it wont happen again and that the fix will not disrupt other services.
+        To cover the last two points, it is imperative to understand the cause of the problematic configuration change.
+        Indeed, the first point, making sure that the configuration modification will not be repeated, cannot be ensured if the cause for pushing the modification in the first place is not known.
+        Ensuring the second point, not disrupting other services, requires as well knowing if the configuration modification was pushed in order to support new services.
+        Therefore, we need to be able to trace a configuration modification on a device back to the reason that triggered that modification, for instance in a NMS.
       </t>
       <t>
-        Two NMSs requesting different configurations for the same NE are in conflict.
-        In order to enable automation, we need to be able to automatically detect such conflicts, analyze their cause and automatically arbitrate them at a higher level.
-        While arbitration is outside of the scope of this document, finding out why the two NMSs are in conflict and possibly finding conflicting service requests is a good use case for this document.
+        The same network element or NETCONF <xref target="RFC6241"/> server can be configured by different NMSs or NETCONF clients.
+        If an issue arises, the starting point for investigation is likely to be the configuration modification on the devices supporting the impacted service.
+        In the best case, there is a dedicated user for each client and the timestamp of the modification allows tracing the problematic modification to its cause.
+        In the worst case, everything is done by the same user and some more tricks must be done to trace the problematic modification to its source.
+      </t>
+      <t>
         Our proposition is to annotate configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any, on the element that requested the configuration modification.
+        We propose to reuse the concept of a NETCONF transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/> and augment it with an ID for the client.
+        The information needed to do the actual configuration tracing is stored in a new YANG module that maps local configuration modification ID to both corresponding north- and southbound transaction ID.
+        For northbound transactions, we additionally store the ID of the client.
       </t>
-      <t>
-        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
-        The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
-        If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
-        Otherwise, the client has to fetch again the configuration.
-        The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
-        In the later case, only versioned nodes for which the transaction ID differs need to be updated.
-      </t>
-      <t>
-        Our proposed solution is to store a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
-        The mapping is read only and populated by the server at configuration time.
-      </t>
-      <t>
-        If the server is configured by an enabled client, then the client must send a transaction-ID and its own ID.
-        The server stores both as northbound transaction ID and corresponding client ID.
-      </t>
-      <t>
-        If the server has to configure some other servers in response to a local configuration change, then it generates
-        a transaction ID, sends it along with its ID to the other servers, and saves it as a southbound transaction ID.
-      </t>
-      <t>
-        The two cases above are not mutually exclusive. A controller can be configured by an Orchestrator and configure network equipment in turn.
-        In that case, both the northbound transaction ID, shared with the orchestrator and the southbound transaction ID, shared with the network equipments, are stored.
-        They are both associated to the corresponding local configuration commit.
-      </t>
+      <t> TODO announce plan</t>
     </section>
     <section title="Terminology" anchor="terminology">
       <t>
@@ -122,6 +104,33 @@
           <t>commit (configuration), or equivalent</t>
           <t>NMS</t>
         </list>
+      </t>
+    </section>
+    <section title="Use cases" anchor="use-cases">
+      <t>
+        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
+        The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
+        If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
+        Otherwise, the client has to fetch again the configuration.
+        The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
+        In the later case, only versioned nodes for which the transaction ID differs need to be updated.
+      </t>
+      <t>
+        Our proposed solution is to store a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
+        The mapping is read only and populated by the server at configuration time.
+      </t>
+      <t>
+        If the server is configured by an enabled client, then the client must send a transaction-ID and its own ID.
+        The server stores both as northbound transaction ID and corresponding client ID.
+      </t>
+      <t>
+        If the server has to configure some other servers in response to a local configuration change, then it generates
+        a transaction ID, sends it along with its ID to the other servers, and saves it as a southbound transaction ID.
+      </t>
+      <t>
+        The two cases above are not mutually exclusive. A controller can be configured by an Orchestrator and configure network equipment in turn.
+        In that case, both the northbound transaction ID, shared with the orchestrator and the southbound transaction ID, shared with the network equipments, are stored.
+        They are both associated to the corresponding local configuration commit.
       </t>
     </section>
     <section anchor="yang-module" title="YANG Module">
