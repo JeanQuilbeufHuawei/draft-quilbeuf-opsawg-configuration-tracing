@@ -79,7 +79,7 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  Use cases . . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   4.  YANG Module . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   4.  YANG module . . . . . . . . . . . . . . . . . . . . . . . . .   5
      4.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   5
      4.2.  YANG module ietf-external-transaction-id  . . . . . . . .   5
    5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
@@ -230,7 +230,7 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
    network equipments, are stored.  They are both associated to the
    corresponding local configuration commit.
 
-4.  YANG Module
+4.  YANG module
 
    We present in this section the YANG module for modelling the
    information about the configuration modifications.

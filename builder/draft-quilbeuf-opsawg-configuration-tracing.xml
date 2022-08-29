@@ -95,7 +95,8 @@
       </t>
       <t> TODO announce plan</t>
     </section>
-    <section title="Terminology" anchor="terminology">
+    <section anchor="terminology">
+      <name>Terminology</name>
       <t>
         The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
         NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
@@ -120,7 +121,8 @@
         <li>NMS</li>
       </ul>
     </section>
-    <section title="Use cases" anchor="use-cases">
+    <section anchor="use-cases">
+      <name>Use cases</name>
       <t>
         Here are the use cases for the proposed YANG module:
       </t>
@@ -155,9 +157,11 @@
         They are both associated to the corresponding local configuration commit.
       </t>
     </section>
-    <section anchor="yang-module" title="YANG Module">
+    <section anchor="yang-module">
+      <name>YANG module</name>
       <t> We present in this section the YANG module for modelling the information about the configuration modifications. </t>
-      <section anchor="module-tree" title="Overview">
+      <section anchor="module-tree">
+        <name>Overview</name>
         <t> The tree representation <xref target="RFC8340"/> of our YANG module is depicted in <xref target="module-tree-fig"/> </t>
         <figure anchor="module-tree-fig" >
           <name>Tree representation of ietf-external-transaction-id YANG module</name>
@@ -189,16 +193,20 @@
       </section>
     </section>
 
-    <section anchor="security" title="Security Considerations">
+    <section anchor="security">
+        <name>Security Considerations</name>
     </section>
-    <section anchor="iana" title="IANA Considerations">
+    <section anchor="iana">
+      <name>IANA Considerations</name>
       <t>
         This document includes no request to IANA.
       </t>
     </section>
-    <section title="Contributors">
+    <section>
+      <name>Contributors</name>
     </section>
-    <section title="Open Issues">
+    <section>
+      <name>Open Issues</name>
       <ul>
         <li> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </li>
         <li> Terminology: NMS? Orchestrator? Controller? NETCONF if we restrict to NETCONF? </li>
@@ -221,11 +229,13 @@
       <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"/>
     </references>
     <?rfc needLines="100"?>
-    <section title="Changes between revisions">
+    <section>
+      <name>Changes between revisions</name>
       <t> Initial version
       </t>
     </section>
-    <section anchor="usage" title="Tracing configuration changes">
+    <section anchor="usage">
+      <name>Tracing configuration changes</name>
       <t>
         The model above enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
         To do so, the software doing the tracing should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
