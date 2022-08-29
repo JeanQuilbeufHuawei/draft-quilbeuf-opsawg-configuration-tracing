@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
-<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
-<?rfc toc="yes"?>
-<?rfc tocompact="yes"?>
-<?rfc tocdepth="4"?>
-<?rfc tocindent="yes"?>
-<?rfc symrefs="yes"?>
-<?rfc sortrefs="yes"?>
-<?rfc comments="yes"?>
-<?rfc inline="yes"?>
-<?rfc compact="yes"?>
-<?rfc subcompact="no"?>
-<rfc category="std" docName="draft-quilbeuf-opsawg-configuration-tracing-00">
-  <front>
+<!DOCTYPE rfc [
+  <!ENTITY nbsp    "&#160;">
+  <!ENTITY zwsp   "&#8203;">
+  <!ENTITY nbhy   "&#8209;">
+  <!ENTITY wj     "&#8288;">
+]>
+<?xml-model href="rfc7991bis.rnc"?>
+<!-- <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?> -->
+<rfc
+        xmlns:xi="http://www.w3.org/2001/XInclude"
+        category="std"
+        ipr="trust200902"
+        obsoletes=""
+        updates=""
+        submissionType="IETF"
+        xml:lang="en"
+        tocInclude="true"
+        sortRefs="true"
+        symRefs="true"
+        version="3" >
+<front>
     <title abbrev="Configuration Tracing via tx-id">External Transaction ID for Configuration Tracing</title>
+    <seriesInfo name="Internet-Draft" value="draft-quilbeuf-opsawg-configuration-tracing-00"/>
     <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf ">
       <organization>Huawei</organization>
       <address>
@@ -26,110 +34,163 @@
         <email>benoit.claise@huawei.com</email>
       </address>
     </author>
-    <date/>
-    <area>OPS</area>
+    <date year="2022" month="8" day="29"/>
+    <area>General</area>
     <workgroup>OPSAWG</workgroup>
     <abstract>
       <t>
         Network equipments are often configured by a variety of network management systems (NMS), protocols and people.
-        Each NMS might have its own task to perform and these tasks can overlap, leading to two different NMS reverting each other modifications on the same network equipment.
-        Also, the configuration pushed by an NMS can be modified by an engineer or some protocol.
-        In turn, this can bring services down and de-synchronize NMSs from their managed network equipment.
-        We propose a mechanism to map the configuration modifications their source, up to the service request in the case of NMSs.
-        Such a mechanism would facilitate the troubleshooting and post mortem analysis.
-        Also, in case of more automated systems, the system could automatically identify two conflicting service requests, find a solution to the conflict and close the loop by sending new instructions to the conflicting NMSs.
-        This document proposes a new YANG model to map a local configuration change to corresponding northbound and southbound transactions, if any.
-        In the context of NETCONF, with compatible NMS, the model would also contain a reference provided by the NMS itself, to map back to the service request. 
+        Each NMS might have its own task to perform and these tasks can overlap, leading to two different NMS pushing configuration modifications to the same network equipment.
+        If an issue arises because of a modification of the configuration, it might be hard to map the guilty modification to its originating NMS and obtain the reason for pushing that modification.
+        We propose a mechanism to automatically map the configuration modifications their source, up to the service request in the case of NMSs.
+        Such a mechanism is required for autonomous networks, for instance to trace the reason of a particular configuration change that lead to an anomaly detection or a broken SLA.
+        Such a mechanism would also facilitate the troubleshooting and post mortem analysis.
+        This document proposes a new YANG module mapping a local configuration change to the corresponding northbound and southbound transactions, if any.
       </t>
     </abstract>
+    <note removeInRFC="true">
+      <name>Discussion Venues</name>
+      <t>Source for this draft and an issue tracker can be found at
+       <eref target="https://github.com/JeanQuilbeufHuawei/draft-collected-data-manifest"/>.</t>
+    </note>
   </front>
   <middle>
-    <section title="Terminology" anchor="terminology">
+    <section anchor="intro" >
+      <name>Introduction</name>
       <t>
-         The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-         NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
-         "MAY", and "OPTIONAL" in this document are to be interpreted as
-         described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
-         when, and only when, they appear in all capitals, as shown here.
+        Issues arising in the network, for instance violation of some SLAs, might be due to some configuration modification.
+        In the context of automated networks, the software needs not only to identify and revert the problematic configuration modification, but also to make sure that it wont happen again and that the fix will not disrupt other services.
+        To cover the last two points, it is imperative to understand the cause of the problematic configuration change.
+        Indeed, the first point, making sure that the configuration modification will not be repeated, cannot be ensured if the cause for pushing the modification in the first place is not known.
+        Ensuring the second point, not disrupting other services, requires as well knowing if the configuration modification was pushed in order to support new services.
+        Therefore, we need to be able to trace a configuration modification on a device back to the reason that triggered that modification, for instance in a NMS.
+      </t>
+      <t>
+        The same network element or NETCONF <xref target="RFC6241"/> server can be configured by different NMSs or NETCONF clients.
+        If an issue arises, the starting point for investigation is likely to be the configuration modification on the devices supporting the impacted service.
+        In the best case, there is a dedicated user for each client and the timestamp of the modification allows tracing the problematic modification to its cause.
+        In the worst case, everything is done by the same user and some more tricks must be done to trace the problematic modification to its source.
+      </t>
+      <t>
+        Our proposition is to annotate configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any, on the element that requested the configuration modification.
+        We propose to reuse the concept of a NETCONF transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/> and augment it with an ID for the client.
+        The information needed to do the actual configuration tracing is stored in a new YANG module that maps local configuration modification ID to both corresponding north- and southbound transaction ID.
+        For northbound transactions, we additionally store the ID of the client.
+      </t>
+      <t> TODO announce plan</t>
+    </section>
+    <section anchor="terminology">
+      <name>Terminology</name>
+      <t>
+        The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+        NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
+        "MAY", and "OPTIONAL" in this document are to be interpreted as
+        described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
+        when, and only when, they appear in all capitals, as shown here.
+      </t>
+      <t>
+        This document uses the terms client and server from <xref target="RFC6241"/>.
+      </t>
+      <t>
+        This document uses the terms transaction and transaction id from <xref target="I-D.lindblad-netconf-transaction-id"/>.
       </t>
       <t>
         TODO: define or reuse existing definitions
-        <list>
-          <t>client</t>
-          <t>server</t>
-          <t>orchestrator</t>
-          <t>controller</t>
-          <t>network equipment</t>
-          <t>transaction</t>
-          <t>transaction id</t>
-          <t>commit (configuration), or equivalent</t>
-          <t>NMS</t>
-        </list>
       </t>
+      <ul>
+        <li>orchestrator</li>
+        <li>controller</li>
+        <li>network equipment</li>
+        <li>commit (configuration), or equivalent</li>
+        <li>NMS</li>
+      </ul>
     </section>
-    <section anchor="intro" title="Introduction">
-      
-      <!-- <t>
-        This document focuses on cases where the network is configured by several NMS that use NETCONF  to update the configuration of the device.
-        For instance, a network service orchestrator might receive on its northbound interface a service request to create a new service instance, following a service model <xref target="RFC8309"/> described using YANG <xref target="RFC6020"/>.  
-        The orchestrator will then use NETCONF, as a client, to push the configuration needed to create the service.
-        The configured network elements, which act as NETCONF servers, are likely to keep track of the modification as part of the commit history.
-        However, the only information available about the configuration change usually contains is the username of the account that triggered the change, the date and the protocol used.
-        In particular, the source of the modification is not available.
-      </t>
-      <t>
-        In most cases, there isn't a single NMS configuring all the devices.
-        Usually, engineer can log in directly to devices to modify the configuration.
-        Some protocols can also alter the configuration.
-        Finally, there are cases where several NMSs are concurrently configuring the devices.
-      </t> -->
-
-      <t> <!-- Troubleshooting network is involved when several NMS are used. -->
-        When several NMSs are used to configure the network, the same network element or NETCONF <xref target="RFC6241"/> server can be configured by different NMSs or NETCONF clients.
-        In that case, the configuration or services configured by the first client might be impacted by the configuration pushed by the second client.
-        That impact is not always easy to detect, especially if the first client is not aware of the modification done by the second client and thus is in a correct state internally, so no NMS would report an error.
-        If an issue arise, the starting point for investigation is likely to be the configuration modification on a given device.
-        In the best case, there is a dedicated user for each client and the timestamp of the modification allows finding the reason why the second client did the modification.
-        In the worst case, everything is done by the same user and some more tricks must be done to identify the source of the second modification.
-      </t>
-      <t>
-        Two NMSs requesting different configurations for the same NE are in conflict.
-        In order to enable automation, we need to be able to automatically detect such conflicts, analyze their cause and automatically arbitrate them at a higher level.
-        While arbitration is outside of the scope of this document, finding out why the two NMSs are in conflict and possibly finding conflicting service requests is a good use case for this document.
-        Our proposition is to annotate configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any, on the element that requested the configuration modification.
-      </t>
-      <t>
-        In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
-        The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
-        If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
-        Otherwise, the client has to fetch again the configuration.
-        The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
-        In the later case, only versioned nodes for which the transaction ID differs need to be updated.
-      </t>
-      <t>
-        Our proposed solution is to store a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
-        The mapping is read only and populated by the server at configuration time.
-      </t>
-      <t>
-        If the server is configured by an enabled client, then the client must send a transaction-ID and its own ID.
-        The server stores both as northbound transaction ID and corresponding client ID.
-      </t>
-      <t>
-        If the server has to configure some other servers in response to a local configuration change, then it generates
-        a transaction ID, sends it along with its ID to the other servers, and saves it as a southbound transaction ID.
-      </t>
-      <t>
-        The two cases above are not mutually exclusive. A controller can be configured by an Orchestrator and configure network equipment in turn.
-        In that case, both the northbound transaction ID, shared with the orchestrator and the southbound transaction ID, shared with the network equipments, are stored.
-        They are both associated to the corresponding local configuration commit.
-      </t>
+    <section anchor="transaction-id-tracing">
+      <name>Relying on Transaction-id to Trace Configuration Modifications</name>
+      <section anchor="use-cases">
+        <name>Use cases</name>
+        <t>
+          This document was written with autonomous networks in mind.
+          We assume that an existing system monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect that some issues in the network are due to a particular configuration modification.
+          Here are the use cases for the proposed YANG module:
+        </t>
+        <ul>
+          <li>Find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS.</li>
+          <li>Map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS</li>
+          <li>Recursively find the service request that eventually triggered the offending configuration modification</li>
+        </ul>
+      </section>
+      <section>
+        <name>Populating the YANG module</name>
+        <t>
+          In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
+          The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
+          If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
+          Otherwise, the client has to fetch again the configuration.
+          The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
+          In the latter case, only versioned nodes for which the transaction ID differs need to be updated.
+        </t>
+        <t>
+          Our proposed solution is to store, on the server, a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
+          The mapping is read only and populated by the server at configuration time as follows:
+        </t>
+        <ul>
+          <li>
+            Northbound transaction:
+            If the server is configured by a client that supports configuration tracing, the client MUST send a transaction-ID and its own ID.
+            The server stores both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
+            If the client does not support configuration tracing, none of these entries are populated.
+          </li>
+          <li>
+            Southbound transaction:
+            If the server has to configure some other servers in response to a local configuration change, then it MUST generate
+            a transaction ID, send it along with its ID to the configured servers, and save it as a southbound transaction ID.
+          </li>
+        </ul>
+        <t>
+          The two cases above are not mutually exclusive. A Controller can be configured by an Orchestrator and configure network equipment in turn.
+          In that case, both the northbound transaction ID, shared with the Orchestrator and the southbound transaction ID, shared with the network equipment, are stored in the Controller.
+          They are both associated to the corresponding configuration commit in the Controller.
+        </t>
+      </section>
+      <section>
+        <name>Using the YANG module</name>
+        <t>
+          The YANG module defined below enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
+          To do so, the software doing the tracing should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
+          It should as well have access to the network equipment in which an issue is detected.
+        </t>
+        <ol>
+          <li>
+            Identify the commit id that created an issue.
+            This step is not defined here, we assume that the software is able to do it.
+          </li>
+          <li>
+            The software queries the NE for the northbound transaction-id and NMS id associated to the commit-id from step 1.
+            If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here (first use case).
+          </li>
+          <li>
+            Otherwise, queries the NMS identified by the northbound-client-id found at the previous step, looking for matching for the northbound-transaction-id from the previous step with a southbound-transaction-id in the NMS. (Second use case)
+          </li>
+          <li>
+            From that query, the software knows the local-commit-id on the NMS.
+            If the local-commit-id is associated to a northbound-transaction-id, the software restarts at step 3.
+          </li>
+          <li>
+            Finally, the local-commit-id points to the changes in topmost NMS that eventually triggered the problematic configuration in the network equipment.
+            These changes are now available for further manual or automated analysis, such as analyzing the root cause of the issue.
+          </li>
+        </ol>
+      </section>
     </section>
-
-    <section anchor="yang-module" title="YANG Module">
+    <section anchor="yang-module">
+      <name>YANG module</name>
       <t> We present in this section the YANG module for modelling the information about the configuration modifications. </t>
-      <section anchor="module-tree" title="Overview">
+      <section anchor="module-tree">
+        <name>Overview</name>
         <t> The tree representation <xref target="RFC8340"/> of our YANG module is depicted in <xref target="module-tree-fig"/> </t>
-        <figure anchor="module-tree-fig" title="Tree representation of ietf-external-transaction-id YANG module">
+        <figure anchor="module-tree-fig" >
+          <name>Tree representation of ietf-external-transaction-id YANG module</name>
           <artwork><![CDATA[
 module: ietf-external-transaction-id
   +--ro external-transactions-id
@@ -156,10 +217,9 @@ module: ietf-external-transaction-id
         </t>
       </section>
       
-      <section anchor="module-code" title="YANG module ietf-external-transaction-id">
-        <t>&lt;CODE BEGINS&gt; file "ietf-external-transaction-id@2021-11-03.yang"</t>
-        <figure>
-          <artwork><![CDATA[
+      <section anchor="module-code" >
+        <name>YANG module ietf-external-transaction-id</name>
+        <sourcecode name="ietf-external-transaction-id@2021-11-03.yang" type="yang" markers="true" ><![CDATA[
 module ietf-external-transaction-id {
   yang-version 1.1;
   namespace
@@ -179,16 +239,17 @@ module ietf-external-transaction-id {
      Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>
      Author:   Jan Linblad    <mailto:jlindbla@cisco.com>";
   description
-    "This module enable tracing of configuration changes in an automated
-     network. It stores the ID of the northbound transaction when the
-     local device is configured by an enabled NMS, and the southbound
-     transaction ID when the local device configures other devices.
+    "This module enable tracing of configuration changes in an
+     automated network. It stores the ID of the northbound
+     transaction when the local device is configured by an enabled
+     NMS, and the southbound transaction ID when the local device
+     configures other devices.
 
      The main usage of this module is to map a local configuration
      change to a northbound transaction ID that can be retrieved as
      southbound transaction ID on the configuring NMS, or to map a
-     southbound transaction ID to a northbound transaction ID on devices
-     that are both configured and configuring other devices.
+     southbound transaction ID to a northbound transaction ID on
+     devices that are both configured and configuring other devices.
 
      The key words 'MUST', 'MUST NOT', 'REQUIRED', 'SHALL',
      'SHALL NOT', 'SHOULD', 'SHOULD NOT', 'RECOMMENDED',
@@ -219,8 +280,8 @@ module ietf-external-transaction-id {
   container external-transactions-id {
     config false;
     description
-      "Contains the IDs of configuration transactions that are external
-       to the current device.";
+      "Contains the IDs of configuration transactions that are
+       external to the current device.";
     list configuration-change {
       key "local-commit-id";
       description
@@ -237,13 +298,14 @@ module ietf-external-transaction-id {
         type ietf-netconf-txid:etag-t;
         description
           "External transaction ID, sent by the client, corresponding
-           to a change initiated by a northbound NMS. There should be a
-           correspnding entry on the NMS as a southbound-transaction-id
-           that maps to the actual configuration commit that triggered
-           the configuration of this server.
+           to a change initiated by a northbound NMS. There should be
+           a corresponding entry on the NMS as a
+           southbound-transaction-id that maps to the actual
+           configuration commit that triggered the configuration of
+           this server.
 
-           This field is present only when the configuration was pushed
-           by a compatible system.";
+           This field is present only when the configuration was
+           pushed by a compatible system.";
       }
       leaf northbound-client-id {
         when '../northbound-transaction-id';
@@ -256,85 +318,75 @@ module ietf-external-transaction-id {
       leaf southbound-transaction-id {
         type ietf-netconf-txid:etag-t;
         description
-          "Transaction ID transmitted to southbound devices configured
-           following the configuration change corresponding to
-           local-commit-id. ";
+          "Transaction ID transmitted to southbound devices
+           configured following the configuration change
+           corresponding to local-commit-id. ";
       }
     }
   }
 }
-    ]]></artwork>
-        </figure>
-        <t>&lt;CODE ENDS&gt;</t>
+    ]]></sourcecode>
       </section>
     </section>
 
-    <section anchor="security" title="Security Considerations">
+    <section anchor="security">
+        <name>Security Considerations</name>
     </section>
-    <section anchor="iana" title="IANA Considerations">
+    <section anchor="iana">
+      <name>IANA Considerations</name>
       <t>
         This document includes no request to IANA.
       </t>
     </section>
-    <section title="Contributors">
+    <section>
+      <name>Contributors</name>
     </section>
-    <section title="Open Issues">
-      <t>
-        <list>
-          <t> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </t>
-          <t> Terminology: NMS? Orchestrator? Controller? NETCONF if we retrict to NETCONF? </t>
-          <t> Is there an existing YANG module for storing the configuration changes? </t>
-        </list>
-      </t>
+    <section>
+      <name>Open Issues / TODO</name>
+      <ul>
+        <li> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </li>
+        <li> Terminology: NMS? Orchestrator? Controller? NETCONF if we restrict to NETCONF? </li>
+        <li> Is there an existing YANG module for storing the configuration changes? </li>
+        <li>
+          A given commit can actually contain several transaction IDs, so we probably need to update the model in order to support that.
+          It’s also a question of which interface we open for the software to find the issue.
+          If that software can work with versioned nodes then it could identify a specific transaction id, rather than the local commit id.
+        </li>
+        <li>
+          Schema describing the configuration of a NE
+        </li>
+        <li>
+          Schema describing the configuration of a Controller that further configures a NE
+        </li>
+        <li>
+          Schema describing the configuration of a Controller that further configures a NE
+        </li>
+      </ul>
     </section>
   </middle>
   <back>
     <references title="Normative References">
-      <?rfc include="reference.RFC.2119"?>
-      <?rfc include="reference.RFC.6020"?>
-      <?rfc include="reference.RFC.6241"?>
-      <?rfc include="reference.RFC.8174"?>
-      <?rfc include="reference.RFC.8340"?>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6241.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8340.xml"/>
     </references>
     <references title="Informative References">
-      <?rfc include="reference.RFC.8040"?>
-      <?rfc include="reference.RFC.8199"?>
-      <?rfc include="reference.RFC.8309"?>
-      <?rfc include="reference.I-D.draft-lindblad-netconf-transaction-id-00"?>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8040.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-opsawg-service-assurance-architecture.xml"/>
     </references>
     <?rfc needLines="100"?>
-    <section title="Changes between revisions">
+    <section>
+      <name>Changes between revisions</name>
       <t> Initial version
       </t>
     </section>
-    <section anchor="usage" title="Tracing configuration changes">
-      <t>
-        The model above enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
-        To do so, the software doing the tracing should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
-        It should as well have access to the network equipments in which an issue is detected.
-      </t>
-      <t>
-        The first step is to identify the commit id that created an issue.
-        This step is not defined here, we assume that the software is able to identify a commit id.
-      </t>
-      <t>
-          The software can match the commit-id with the local-commit-id of our model.
-          If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here.
-      </t>
-      <t>
-        Otherwise, the software connects to the NMS identified by the northbound-client-id.
-        The software looks for the northbound-transaction-id from the previous step in the southbound-transaction-id of the NMS.
-      </t>
-      <t>
-        From that query, the software knows the local-commit-id on the NMS.
-        If the local-commit-id is associated to a northbound-transaction-id, the software can iterate the previous step with the NMS identified by the northbound-client-id field.
-      </t>
-      <t>
-        Finally, the local-commit-id points to the changes in topmost NMS that eventually triggered the problematic configuration in the network equipment.
-        These changes are now available for further manual or automated analysis.
-      </t>
+    <section anchor="usage">
+      <name>Tracing configuration changes</name>
     </section>
-    <section title="Acknowledgements" numbered="no">
+    <section numbered="false">
+      <name>Acknowledgements</name>
       <t>
           ...
         </t>
