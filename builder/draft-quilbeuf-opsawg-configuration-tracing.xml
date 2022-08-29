@@ -42,33 +42,8 @@
     </abstract>
   </front>
   <middle>
-    <section title="Terminology" anchor="terminology">
-      <t>
-         The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-         NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
-         "MAY", and "OPTIONAL" in this document are to be interpreted as
-         described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
-         when, and only when, they appear in all capitals, as shown here.
-      </t>
-      <t>
-        This document uses the terms client and server from <xref target="RFC6241"/>.
-      </t>
-      <t>
-        This document uses the terms transaction and transaction id from <xref target="I-D.lindblad-netconf-transaction-id"/>.
-      </t>
-      <t>
-        TODO: define or reuse existing definitions
-        <list>
-          <t>orchestrator</t>
-          <t>controller</t>
-          <t>network equipment</t>
-          <t>commit (configuration), or equivalent</t>
-          <t>NMS</t>
-        </list>
-      </t>
-    </section>
     <section anchor="intro" title="Introduction">
-      
+
       <!-- <t>
         This document focuses on cases where the network is configured by several NMS that use NETCONF  to update the configuration of the device.
         For instance, a network service orchestrator might receive on its northbound interface a service request to create a new service instance, following a service model <xref target="RFC8309"/> described using YANG <xref target="RFC6020"/>.  
@@ -124,7 +99,31 @@
         They are both associated to the corresponding local configuration commit.
       </t>
     </section>
-
+    <section title="Terminology" anchor="terminology">
+      <t>
+        The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+        NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
+        "MAY", and "OPTIONAL" in this document are to be interpreted as
+        described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
+        when, and only when, they appear in all capitals, as shown here.
+      </t>
+      <t>
+        This document uses the terms client and server from <xref target="RFC6241"/>.
+      </t>
+      <t>
+        This document uses the terms transaction and transaction id from <xref target="I-D.lindblad-netconf-transaction-id"/>.
+      </t>
+      <t>
+        TODO: define or reuse existing definitions
+        <list>
+          <t>orchestrator</t>
+          <t>controller</t>
+          <t>network equipment</t>
+          <t>commit (configuration), or equivalent</t>
+          <t>NMS</t>
+        </list>
+      </t>
+    </section>
     <section anchor="yang-module" title="YANG Module">
       <t> We present in this section the YANG module for modelling the information about the configuration modifications. </t>
       <section anchor="module-tree" title="Overview">

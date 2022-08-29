@@ -75,8 +75,8 @@ Copyright Notice
 
 Table of Contents
 
-   1.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   2
-   2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  YANG Module . . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.2.  YANG module ietf-external-transaction-id  . . . . . . . .   5
@@ -92,39 +92,7 @@ Table of Contents
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .   9
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
 
-1.  Terminology
-
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in BCP
-   14 [RFC2119] [RFC8174] when, and only when, they appear in all
-   capitals, as shown here.
-
-   This document uses the terms client and server from [RFC6241].
-
-   This document uses the terms transaction and transaction id from
-   [I-D.lindblad-netconf-transaction-id].
-
-   TODO: define or reuse existing definitions
-
-
-
-Quilbeuf  & Claise        Expires March 2, 2023                 [Page 2]
-
-Internet-Draft       Configuration Tracing via tx-id         August 2022
-
-
-      orchestrator
-
-      controller
-
-      network equipment
-
-      commit (configuration), or equivalent
-
-      NMS
-
-2.  Introduction
+1.  Introduction
 
    When several NMSs are used to configure the network, the same network
    element or NETCONF [RFC6241] server can be configured by different
@@ -138,6 +106,14 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
    modification on a given device.  In the best case, there is a
    dedicated user for each client and the timestamp of the modification
    allows finding the reason why the second client did the modification.
+
+
+
+Quilbeuf  & Claise        Expires March 2, 2023                 [Page 2]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
    In the worst case, everything is done by the same user and some more
    tricks must be done to identify the source of the second
    modification.
@@ -162,14 +138,6 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
    synchronized.  Otherwise, the client has to fetch again the
    configuration.  The transaction ID can be applied to the whole
    configuration or to so-called versioned nodes.  In the later case,
-
-
-
-Quilbeuf  & Claise        Expires March 2, 2023                 [Page 3]
-
-Internet-Draft       Configuration Tracing via tx-id         August 2022
-
-
    only versioned nodes for which the transaction ID differs need to be
    updated.
 
@@ -194,6 +162,39 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
    network equipments, are stored.  They are both associated to the
    corresponding local configuration commit.
 
+
+
+
+Quilbeuf  & Claise        Expires March 2, 2023                 [Page 3]
+
+Internet-Draft       Configuration Tracing via tx-id         August 2022
+
+
+2.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   This document uses the terms client and server from [RFC6241].
+
+   This document uses the terms transaction and transaction id from
+   [I-D.lindblad-netconf-transaction-id].
+
+   TODO: define or reuse existing definitions
+
+      orchestrator
+
+      controller
+
+      network equipment
+
+      commit (configuration), or equivalent
+
+      NMS
+
 3.  YANG Module
 
    We present in this section the YANG module for modelling the
@@ -215,7 +216,6 @@ Internet-Draft       Configuration Tracing via tx-id         August 2022
 
     Figure 1: Tree representation of ietf-external-transaction-id YANG
                                   module
-
 
 
 
