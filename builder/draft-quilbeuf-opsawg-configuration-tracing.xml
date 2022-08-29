@@ -108,6 +108,14 @@
     </section>
     <section title="Use cases" anchor="use-cases">
       <t>
+        Here are the use cases for the proposed YANG module:
+        <list style="symbols">
+          <t>Find out whether a local configuration modification was triggered by a tracing-enabled client/NMS.</t>
+          <t>Map the local configuration modification id to a local configuration modification id on the client/NMS</t>
+          <t>Recursively find the service request associated to configuration modification in a network equipment</t>
+        </list>
+      </t>
+      <t>
         In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
         The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
         If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
