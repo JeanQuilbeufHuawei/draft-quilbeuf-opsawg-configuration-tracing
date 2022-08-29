@@ -1,4 +1,5 @@
 import json
+from datetime import date
 import os.path
 import subprocess
 from typing import List
@@ -59,6 +60,7 @@ def _format_json(filename):
 
 EXT_TX_ID = _find_yang_file("ietf-external-transaction-id")
 
+
 def draft_content():
     pyang_results = {
         "external_transaction_id_tree": _build_tree([EXT_TX_ID]),
@@ -75,7 +77,15 @@ def draft_content():
             print("************ERROR********************")
             print(error)
         exit(1)
+    add_date(contents)
     return contents
+
+
+def add_date(contents):
+    today = date.today()
+    contents["day"] = today.day
+    contents["month"] = today.month
+    contents["year"] = today.year
 
 
 if __name__ == '__main__':

@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
-<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
-<?rfc toc="yes"?>
-<?rfc tocompact="yes"?>
-<?rfc tocdepth="4"?>
-<?rfc tocindent="yes"?>
-<?rfc symrefs="yes"?>
-<?rfc sortrefs="yes"?>
-<?rfc comments="yes"?>
-<?rfc inline="yes"?>
-<?rfc compact="yes"?>
-<?rfc subcompact="no"?>
-<rfc category="std" docName="draft-quilbeuf-opsawg-configuration-tracing-00">
-  <front>
+<!DOCTYPE rfc [
+  <!ENTITY nbsp    "&#160;">
+  <!ENTITY zwsp   "&#8203;">
+  <!ENTITY nbhy   "&#8209;">
+  <!ENTITY wj     "&#8288;">
+]>
+<?xml-model href="rfc7991bis.rnc"?>
+<!-- <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?> -->
+<rfc
+        xmlns:xi="http://www.w3.org/2001/XInclude"
+        category="std"
+        ipr="trust200902"
+        obsoletes=""
+        updates=""
+        submissionType="IETF"
+        xml:lang="en"
+        tocInclude="true"
+        sortRefs="true"
+        symRefs="true"
+        version="3" >
+<front>
     <title abbrev="Configuration Tracing via tx-id">External Transaction ID for Configuration Tracing</title>
+    <seriesInfo name="Internet-Draft" value="draft-quilbeuf-opsawg-configuration-tracing-00"/>
     <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf ">
       <organization>Huawei</organization>
       <address>
@@ -26,8 +34,8 @@
         <email>benoit.claise@huawei.com</email>
       </address>
     </author>
-    <date/>
-    <area>OPS</area>
+    <date year="{{year}}" month="{{month}}" day="{{day}}"/>
+    <area>General</area>
     <workgroup>OPSAWG</workgroup>
     <abstract>
       <t>
@@ -40,9 +48,15 @@
         This document proposes a new YANG module mapping a local configuration change to the corresponding northbound and southbound transactions, if any.
       </t>
     </abstract>
+    <note removeInRFC="true">
+      <name>Discussion Venues</name>
+      <t>Source for this draft and an issue tracker can be found at
+       <eref target="https://github.com/JeanQuilbeufHuawei/draft-collected-data-manifest"/>.</t>
+    </note>
   </front>
   <middle>
-    <section anchor="intro" title="Introduction">
+    <section anchor="intro" >
+      <name>Introduction</name>
 
       <!-- <t>
         This document focuses on cases where the network is configured by several NMS that use NETCONF  to update the configuration of the device.
@@ -97,24 +111,24 @@
       </t>
       <t>
         TODO: define or reuse existing definitions
-        <list>
-          <t>orchestrator</t>
-          <t>controller</t>
-          <t>network equipment</t>
-          <t>commit (configuration), or equivalent</t>
-          <t>NMS</t>
-        </list>
       </t>
+      <ul>
+        <li>orchestrator</li>
+        <li>controller</li>
+        <li>network equipment</li>
+        <li>commit (configuration), or equivalent</li>
+        <li>NMS</li>
+      </ul>
     </section>
     <section title="Use cases" anchor="use-cases">
       <t>
         Here are the use cases for the proposed YANG module:
-        <list style="symbols">
-          <t>Find out whether a local configuration modification was triggered by a tracing-enabled client/NMS.</t>
-          <t>Map the local configuration modification id to a local configuration modification id on the client/NMS</t>
-          <t>Recursively find the service request associated to configuration modification in a network equipment</t>
-        </list>
       </t>
+      <ul>
+        <li>Find out whether a local configuration modification was triggered by a tracing-enabled client/NMS.</li>
+        <li>Map the local configuration modification id to a local configuration modification id on the client/NMS</li>
+        <li>Recursively find the service request associated to configuration modification in a network equipment</li>
+      </ul>
       <t>
         In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
         The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
@@ -145,7 +159,8 @@
       <t> We present in this section the YANG module for modelling the information about the configuration modifications. </t>
       <section anchor="module-tree" title="Overview">
         <t> The tree representation <xref target="RFC8340"/> of our YANG module is depicted in <xref target="module-tree-fig"/> </t>
-        <figure anchor="module-tree-fig" title="Tree representation of ietf-external-transaction-id YANG module">
+        <figure anchor="module-tree-fig" >
+          <name>Tree representation of ietf-external-transaction-id YANG module</name>
           <artwork><![CDATA[
 {{ external_transaction_id_tree }}
             ]]>
@@ -166,14 +181,11 @@
         </t>
       </section>
       
-      <section anchor="module-code" title="YANG module ietf-external-transaction-id">
-        <t>&lt;CODE BEGINS&gt; file "ietf-external-transaction-id@2021-11-03.yang"</t>
-        <figure>
-          <artwork><![CDATA[
+      <section anchor="module-code" >
+        <name>YANG module ietf-external-transaction-id</name>
+        <sourcecode name="ietf-external-transaction-id@2021-11-03.yang" type="yang" markers="true" ><![CDATA[
 {{ external_transaction_id_yang }}
-    ]]></artwork>
-        </figure>
-        <t>&lt;CODE ENDS&gt;</t>
+    ]]></sourcecode>
       </section>
     </section>
 
@@ -187,28 +199,26 @@
     <section title="Contributors">
     </section>
     <section title="Open Issues">
-      <t>
-        <list>
-          <t> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </t>
-          <t> Terminology: NMS? Orchestrator? Controller? NETCONF if we restrict to NETCONF? </t>
-          <t> Is there an existing YANG module for storing the configuration changes? </t>
-        </list>
-      </t>
+      <ul>
+        <li> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </li>
+        <li> Terminology: NMS? Orchestrator? Controller? NETCONF if we restrict to NETCONF? </li>
+        <li> Is there an existing YANG module for storing the configuration changes? </li>
+      </ul>
     </section>
   </middle>
   <back>
     <references title="Normative References">
-      <?rfc include="reference.RFC.2119"?>
-      <?rfc include="reference.RFC.6020"?>
-      <?rfc include="reference.RFC.6241"?>
-      <?rfc include="reference.RFC.8174"?>
-      <?rfc include="reference.RFC.8340"?>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6020.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6241.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8340.xml"/>
     </references>
     <references title="Informative References">
-      <?rfc include="reference.RFC.8040"?>
-      <?rfc include="reference.RFC.8199"?>
-      <?rfc include="reference.RFC.8309"?>
-      <?rfc include="reference.I-D.draft-lindblad-netconf-transaction-id-02"?>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8040.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8199.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8309.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"/>
     </references>
     <?rfc needLines="100"?>
     <section title="Changes between revisions">
@@ -242,7 +252,8 @@
         These changes are now available for further manual or automated analysis.
       </t>
     </section>
-    <section title="Acknowledgements" numbered="no">
+    <section numbered="false">
+      <name>Acknowledgements</name>
       <t>
           ...
         </t>
