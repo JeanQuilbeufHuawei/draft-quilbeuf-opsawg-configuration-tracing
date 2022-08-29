@@ -32,14 +32,12 @@
     <abstract>
       <t>
         Network equipments are often configured by a variety of network management systems (NMS), protocols and people.
-        Each NMS might have its own task to perform and these tasks can overlap, leading to two different NMS reverting each other modifications on the same network equipment.
-        Also, the configuration pushed by an NMS can be modified by an engineer or some protocol.
-        In turn, this can bring services down and de-synchronize NMSs from their managed network equipment.
-        We propose a mechanism to map the configuration modifications their source, up to the service request in the case of NMSs.
-        Such a mechanism would facilitate the troubleshooting and post mortem analysis.
-        Also, in case of more automated systems, the system could automatically identify two conflicting service requests, find a solution to the conflict and close the loop by sending new instructions to the conflicting NMSs.
-        This document proposes a new YANG model to map a local configuration change to corresponding northbound and southbound transactions, if any.
-        In the context of NETCONF, with compatible NMS, the model would also contain a reference provided by the NMS itself, to map back to the service request. 
+        Each NMS might have its own task to perform and these tasks can overlap, leading to two different NMS pushing configuration modifications to the same network equipment.
+        If an issue arises because of such a concurrent modification of the configuration, it might be hard to map each configuration modification to its originating NMS and obtain the reason for pushing that modification.
+        We propose a mechanism to automatically map the configuration modifications their source, up to the service request in the case of NMSs.
+        Such a mechanism is required for autonomous networks, for instance to trace the reason of a particular configuration change that lead to an anomaly detection or a broken SLA.
+        Such a mechanism would also facilitate the troubleshooting and post mortem analysis.
+        This document proposes a new YANG module mapping a local configuration change to the corresponding northbound and southbound transactions, if any.
       </t>
     </abstract>
   </front>
@@ -53,15 +51,17 @@
          when, and only when, they appear in all capitals, as shown here.
       </t>
       <t>
+        This document uses the terms client and server from <xref target="RFC6241"/>.
+      </t>
+      <t>
+        This document uses the terms transaction and transaction id from <xref target="I-D.lindblad-netconf-transaction-id"/>.
+      </t>
+      <t>
         TODO: define or reuse existing definitions
         <list>
-          <t>client</t>
-          <t>server</t>
           <t>orchestrator</t>
           <t>controller</t>
           <t>network equipment</t>
-          <t>transaction</t>
-          <t>transaction id</t>
           <t>commit (configuration), or equivalent</t>
           <t>NMS</t>
         </list>
@@ -282,7 +282,7 @@ module ietf-external-transaction-id {
       <t>
         <list>
           <t> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </t>
-          <t> Terminology: NMS? Orchestrator? Controller? NETCONF if we retrict to NETCONF? </t>
+          <t> Terminology: NMS? Orchestrator? Controller? NETCONF if we restrict to NETCONF? </t>
           <t> Is there an existing YANG module for storing the configuration changes? </t>
         </list>
       </t>
@@ -300,7 +300,7 @@ module ietf-external-transaction-id {
       <?rfc include="reference.RFC.8040"?>
       <?rfc include="reference.RFC.8199"?>
       <?rfc include="reference.RFC.8309"?>
-      <?rfc include="reference.I-D.draft-lindblad-netconf-transaction-id-00"?>
+      <?rfc include="reference.I-D.draft-lindblad-netconf-transaction-id-02"?>
     </references>
     <?rfc needLines="100"?>
     <section title="Changes between revisions">
