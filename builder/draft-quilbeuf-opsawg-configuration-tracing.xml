@@ -39,13 +39,13 @@
     <workgroup>OPSAWG</workgroup>
     <abstract>
       <t>
-        Network equipments are often configured by a variety of network management systems (NMS), protocols and people.
-        Each NMS might have its own task to perform and these tasks can overlap, leading to two different NMS pushing configuration modifications to the same network equipment.
-        If an issue arises because of a modification of the configuration, it might be hard to map the guilty modification to its originating NMS and obtain the reason for pushing that modification.
-        We propose a mechanism to automatically map the configuration modifications their source, up to the service request in the case of NMSs.
-        Such a mechanism is required for autonomous networks, for instance to trace the reason of a particular configuration change that lead to an anomaly detection or a broken SLA.
-        Such a mechanism would also facilitate the troubleshooting and post mortem analysis.
-        This document proposes a new YANG module mapping a local configuration change to the corresponding northbound and southbound transactions, if any.
+        Network equipments are often configured by a variety of network management systems (NMS), protocols, and people.
+        If a network issue arises because of a wrong configuration modification, it's important to quickly identify the specific service request and obtain the reason for pushing that modification.
+        Another potential network issue can stem from concurrent NMS' with overlapping intent, each having their own tasks to perform: in such a case, it's important to map the respective modifications to its originating NMS.
+        We propose a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.
+        Such a mechanism is required for autonomous networks, to trace the reason of a particular configuration change that lead to an anomaly detection or a broken SLA.
+        This mechanism would facilitate the troubleshooting, the post mortem analysis, and in the end the closed loop automation required for self-healing networks.
+        This document proposes a new YANG module mapping a local configuration change to the corresponding northbound transaction, up to the controller or even the orchestrator.
       </t>
     </abstract>
     <note removeInRFC="true">
