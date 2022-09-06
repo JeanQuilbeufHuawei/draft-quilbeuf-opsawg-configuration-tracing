@@ -14,8 +14,7 @@ module ietf-external-transaction-id {
     "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
      WG List:  <mailto:opsawg@ietf.org>
      Author:   Benoit Claise  <mailto:benoit.claise@huawei.com>
-     Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>
-     Author:   Jan Linblad    <mailto:jlindbla@cisco.com>";
+     Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>";
   description
     "This module enable tracing of configuration changes in an
      automated network. It stores the ID of the northbound
@@ -93,7 +92,7 @@ module ietf-external-transaction-id {
           "ID of the client doing the modification, to further query
            information about the corresponding change.";
       }
-      leaf southbound-transaction-id {
+      leaf-list southbound-transaction-id {
         type ietf-netconf-txid:etag-t;
         description
           "Transaction ID transmitted to southbound devices
