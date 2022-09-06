@@ -250,13 +250,11 @@
     <section>
       <name>Open Issues / TODO</name>
       <ul>
-        <li> Do we restrict to NETCONF or generalize to any automated configuration framework? For instance, should a NMS that would use CLI to configure be supported by this draft as well? </li>
-        <li> Terminology: NMS? Orchestrator? Controller? NETCONF if we restrict to NETCONF? </li>
-        <li> Is there an existing YANG module for storing the configuration changes? </li>
         <li>
           A given commit can actually contain several transaction IDs, so we probably need to update the model in order to support that.
           It’s also a question of which interface we open for the software to find the issue.
           If that software can work with versioned nodes then it could identify a specific transaction id, rather than the local commit id.
+          We won’t consider that case as it is bad practice to modify a shared datastore without committing.
         </li>
         <li>
           Schema describing the configuration of a NE

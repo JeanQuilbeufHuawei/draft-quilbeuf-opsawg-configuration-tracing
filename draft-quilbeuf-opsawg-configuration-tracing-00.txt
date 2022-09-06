@@ -98,9 +98,9 @@ Table of Contents
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
    7.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  10
    8.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  10
-   9.  Normative References  . . . . . . . . . . . . . . . . . . . .  11
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . .  10
    10. Informative References  . . . . . . . . . . . . . . . . . . .  11
-   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  12
+   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  11
    Appendix B.  Tracing configuration changes  . . . . . . . . . . .  12
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  12
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
@@ -537,30 +537,13 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 8.  Open Issues / TODO
 
-   *  Do we restrict to NETCONF or generalize to any automated
-      configuration framework?  For instance, should a NMS that would
-      use CLI to configure be supported by this draft as well?
-
-   *  Terminology: NMS?  Orchestrator?  Controller?  NETCONF if we
-      restrict to NETCONF?
-
-   *  Is there an existing YANG module for storing the configuration
-      changes?
-
    *  A given commit can actually contain several transaction IDs, so we
       probably need to update the model in order to support that.  It's
       also a question of which interface we open for the software to
       find the issue.  If that software can work with versioned nodes
       then it could identify a specific transaction id, rather than the
-      local commit id.
-
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                [Page 10]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
+      local commit id.  We won't consider that case as it is bad
+      practice to modify a shared datastore without committing.
 
    *  Schema describing the configuration of a NE
 
@@ -571,6 +554,13 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
       configures a NE
 
 9.  Normative References
+
+
+
+Quilbeuf & Claise         Expires 10 March 2023                [Page 10]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -611,16 +601,22 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
               Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
               <https://www.rfc-editor.org/info/rfc8040>.
 
+Appendix A.  Changes between revisions
+
+   Initial version
+
+
+
+
+
+
+
 
 
 Quilbeuf & Claise         Expires 10 March 2023                [Page 11]
 
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
-
-Appendix A.  Changes between revisions
-
-   Initial version
 
 Appendix B.  Tracing configuration changes
 
@@ -640,6 +636,10 @@ Authors' Addresses
    Huawei
 
    Email: benoit.claise@huawei.com
+
+
+
+
 
 
 
