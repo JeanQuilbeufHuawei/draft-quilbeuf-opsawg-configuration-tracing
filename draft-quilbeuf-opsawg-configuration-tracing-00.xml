@@ -34,7 +34,7 @@
         <email>benoit.claise@huawei.com</email>
       </address>
     </author>
-    <date year="2022" month="8" day="30"/>
+    <date year="2022" month="9" day="6"/>
     <area>General</area>
     <workgroup>OPSAWG</workgroup>
     <abstract>
@@ -110,13 +110,13 @@
         <name>Use cases</name>
         <t>
           This document was written with autonomous networks in mind.
-          We assume that an existing system monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies , e.g. SLA violations, intent violations, network failure, or simply a customer issue. 
+          We assume that an existing system monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies , e.g. SLA violations, intent violations, network failure, or simply a customer issue.
           Here are the use cases for the proposed YANG module.
         </t>
           <section anchor="configuration-mistakes">
             <name>Configuration Mistakes</name>
             <t>
-              Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS. In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS. Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification. Whether this/those service request(s) are actually the root cause needs to be investigated. However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks. 
+              Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS. In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS. Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification. Whether this/those service request(s) are actually the root cause needs to be investigated. However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
             </t>
           </section>
           <section anchor="concurrent-nms-configuration">
