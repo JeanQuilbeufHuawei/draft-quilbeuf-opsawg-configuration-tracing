@@ -5,7 +5,7 @@
 OPSAWG                                                       J. Quilbeuf
 Internet-Draft                                                 B. Claise
 Intended status: Standards Track                                  Huawei
-Expires: 10 March 2023                                  6 September 2022
+Expires: 17 March 2023                                 13 September 2022
 
 
            External Transaction ID for Configuration Tracing
@@ -17,19 +17,19 @@ Abstract
    arises because of a wrong configuration modification, it's important
    to quickly identify the specific service request and obtain the
    reason for pushing that modification.  Another potential network
-   issue can stem from concurrent NMS' with overlapping intent, each
+   issue can stem from concurrent NMS's with overlapping intent, each
    having their own tasks to perform: in such a case, it's important to
    map the respective modifications to its originating NMS.  This
    document specifies a mechanism to automatically map the configuration
-   modifications to their source, up to a specific NMS service request.
-   Such a mechanism is required for autonomous networks, to trace the
-   reason of a particular configuration change that lead to an anomaly
-   detection or a broken SLA.  This mechanism facilitates the
-   troubleshooting, the post mortem analysis, and in the end the closed
-   loop automation required for self-healing networks.  The
-   specifications contain a new YANG module mapping a local
-   configuration change to the corresponding northbound transaction, up
-   to the controller or even the orchestrator.
+   modifications to their source, up to a specific NMS service request,
+   in the context of NETCONF.  Such a mechanism is required for
+   autonomous networks, to trace the reason of a particular
+   configuration change that lead to an anomaly detection or a broken
+   SLA.  This mechanism facilitates the troubleshooting, the post mortem
+   analysis, and in the end the closed loop automation required for
+   self-healing networks.  The specifications contain a new YANG module
+   mapping a local configuration change to the corresponding northbound
+   transaction, up to the controller or even the orchestrator.
 
 Discussion Venues
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 1]
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 1]
 
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
@@ -63,7 +63,7 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 March 2023.
+   This Internet-Draft will expire on 17 March 2023.
 
 Copyright Notice
 
@@ -85,22 +85,22 @@ Table of Contents
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Relying on Transaction-id to Trace Configuration
            Modifications . . . . . . . . . . . . . . . . . . . . . .   4
-     3.1.  Use cases . . . . . . . . . . . . . . . . . . . . . . . .   4
-       3.1.1.  Configuration Mistakes  . . . . . . . . . . . . . . .   4
+     3.1.  Use cases . . . . . . . . . . . . . . . . . . . . . . . .   5
+       3.1.1.  Configuration Mistakes  . . . . . . . . . . . . . . .   5
        3.1.2.  Concurrent NMS Configuration  . . . . . . . . . . . .   5
        3.1.3.  Conflicting Intents . . . . . . . . . . . . . . . . .   5
-     3.2.  Populating the YANG module  . . . . . . . . . . . . . . .   5
-     3.3.  Using the YANG module . . . . . . . . . . . . . . . . . .   6
+     3.2.  Populating the YANG module  . . . . . . . . . . . . . . .   6
+     3.3.  Using the YANG module . . . . . . . . . . . . . . . . . .   7
    4.  YANG module . . . . . . . . . . . . . . . . . . . . . . . . .   7
      4.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   7
      4.2.  YANG module ietf-external-transaction-id  . . . . . . . .   8
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
-   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
-   7.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  10
-   8.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  10
-   9.  Normative References  . . . . . . . . . . . . . . . . . . . .  10
-   10. Informative References  . . . . . . . . . . . . . . . . . . .  11
-   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  11
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  11
+   7.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  11
+   8.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  11
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . .  11
+   10. Informative References  . . . . . . . . . . . . . . . . . . .  12
+   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  12
    Appendix B.  Tracing configuration changes  . . . . . . . . . . .  12
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  12
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 2]
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 2]
 
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
@@ -133,15 +133,42 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    triggered that modification, for instance in a NMS, whether the
    controller or the orchestrator.
 
-   The same network element, or NETCONF [RFC6241] server, can be
-   configured by different NMSs or NETCONF clients.  If an issue arises,
-   one of the starting points for investigation is the configuration
-   modification on the devices supporting the impacted service.  In the
-   best case, there is a dedicated user for each client and the
-   timestamp of the modification allows tracing the problematic
-   modification to its cause.  In the worst case, everything is done by
-   the same user and some more tricks must be done to trace the
-   problematic modification to its source.
+   In this document, we focus only on configuration pushed via NETCONF
+   [RFC6241].  The rationale for this choice is that NETCONF is better
+   suited for normalization than other protocols (SNMP, CLI), notably
+   because the notion of transaction ID
+   [I-D.lindblad-netconf-transaction-id] from RESTCONF [RFC8040] already
+   exists to track configuration changes.  The same network element, or
+   NETCONF [RFC6241] server, can be configured by different NMSs or
+   NETCONF clients.  If an issue arises, one of the starting points for
+   investigation is the configuration modification on the devices
+   supporting the impacted service.  In the best case, there is a
+   dedicated user for each client and the timestamp of the modification
+   allows tracing the problematic modification to its cause.  In the
+   worst case, everything is done by the same user and some more tricks
+   must be done to trace the problematic modification to its source.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 3]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
 
    This document specifies a mechanism to automatically map the
    configuration modifications to their source, up to a specific NMS
@@ -160,15 +187,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    transactions, we store the ID of the client.
 
    TODO announce plan
-
-
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 3]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
 
 2.  Terminology
 
@@ -197,6 +215,17 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 3.  Relying on Transaction-id to Trace Configuration Modifications
 
+
+
+
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 4]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
 3.1.  Use cases
 
    This document was written with autonomous networks in mind.  We
@@ -218,14 +247,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    find, in the orchestrator, the latest (set of of) service request(s)
    that triggered the configuration modification.  Whether this/those
    service request(s) are actually the root cause needs to be
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 4]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
    investigated.  However, they are a good starting point for
    troubleshooting, post mortem analysis, and in the end the closed loop
    automation, which is absolutely required for for self-healing
@@ -248,6 +269,19 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    even if the domain-specific controllers are aware of each other.  For
    example, ...
 
+
+
+
+
+
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 5]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
 3.2.  Populating the YANG module
 
    In [I-D.lindblad-netconf-transaction-id], the concept of a NETCONF
@@ -267,20 +301,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    transactions related to that local configuration change.  The mapping
    is read only and populated by the server at configuration time as
    follows:
-
-
-
-
-
-
-
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 5]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
 
    *  Northbound transaction: If the server is configured by a client
       that supports configuration tracing, the client MUST send a
@@ -306,6 +326,18 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    associated to the corresponding configuration commit in the
    Controller.
 
+
+
+
+
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 6]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
 3.3.  Using the YANG module
 
    The YANG module defined below enables tracing a configuration change
@@ -330,14 +362,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
        northbound-transaction-id from the previous step with a
        southbound-transaction-id in the NMS.  (Second use case)
 
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 6]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
    4.  From that query, the software knows the local-commit-id on the
        NMS.  If the local-commit-id is associated to a northbound-
        transaction-id, the software restarts at step 3.
@@ -357,6 +381,18 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
    The tree representation [RFC8340] of our YANG module is depicted in
    Figure 1
+
+
+
+
+
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 7]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
 
    module: ietf-external-transaction-id
      +--ro external-transactions-id
@@ -380,20 +416,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    fields are sent by the client whenever it sends the configuration
    that trigger the changes associated to the local-commit-id.
 
-
-
-
-
-
-
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 7]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
    The southbound-transaction-id should be present when the current
    configuration change leads to the configuration of other devices.  In
    that case, the southbound-transaction-id should be generated by the
@@ -403,6 +425,15 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    forced transaction id, then the transaction IDs resulting of the
    configuration of the servers must be stored in that list.
 
+   The use cases defined in Section 3.1 are not specific to NETCONF and
+   the mechanism described in this document could be adapted to other
+   configuration mechanisms.  For instance, a configuration modification
+   pushed via CLI can be identified via a label.  As such cases are
+   difficult to standardize, we won't cover them in this document.
+   However, our model could be extended to support such mechanism for
+   instance by using a configuration label instead of the northbound
+   transaction ID.
+
 4.2.  YANG module ietf-external-transaction-id
 
    <CODE BEGINS> file "ietf-external-transaction-id@2021-11-03.yang"
@@ -411,6 +442,13 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
      namespace
        "urn:ietf:params:xml:ns:yang:ietf-external-transaction-id";
      prefix ext-txid;
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 8]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
 
      import ietf-netconf-txid {
        prefix ietf-netconf-txid;
@@ -443,13 +481,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
         (RFC 8174) when, and only when, they appear in all
         capitals, as shown here.
 
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 8]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
         Copyright (c) 2021 IETF Trust and the persons identified as
         authors of the code.  All rights reserved.
 
@@ -467,6 +498,14 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
          "Initial revision";
        reference
          "RFC xxxx: Title to be completed";
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 9]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
      }
 
      container external-transactions-id {
@@ -498,14 +537,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
               This field is present only when the configuration was
               pushed by a compatible system.";
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                 [Page 9]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
          }
          leaf northbound-client-id {
            when '../northbound-transaction-id';
@@ -523,6 +554,14 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
               corresponding to local-commit-id. ";
          }
        }
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                [Page 10]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
      }
    }
    <CODE ENDS>
@@ -555,13 +594,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 9.  Normative References
 
-
-
-Quilbeuf & Claise         Expires 10 March 2023                [Page 10]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -576,6 +608,16 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
+
+
+
+
+
+Quilbeuf & Claise         Expires 17 March 2023                [Page 11]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
    [RFC8340]  Bjorklund, M. and L. Berger, Ed., "YANG Tree Diagrams",
               BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
               <https://www.rfc-editor.org/info/rfc8340>.
@@ -587,15 +629,15 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
               Arumugam, "Service Assurance for Intent-based Networking
               Architecture", Work in Progress, Internet-Draft, draft-
               ietf-opsawg-service-assurance-architecture-08, 11 August
-              2022, <https://datatracker.ietf.org/api/v1/doc/document/
-              draft-ietf-opsawg-service-assurance-architecture/>.
+              2022, <https://www.ietf.org/archive/id/draft-ietf-opsawg-
+              service-assurance-architecture-08.txt>.
 
    [I-D.lindblad-netconf-transaction-id]
               Lindblad, J., "Transaction ID Mechanism for NETCONF", Work
               in Progress, Internet-Draft, draft-lindblad-netconf-
               transaction-id-02, 8 June 2022,
-              <https://datatracker.ietf.org/api/v1/doc/document/draft-
-              lindblad-netconf-transaction-id/>.
+              <https://www.ietf.org/archive/id/draft-lindblad-netconf-
+              transaction-id-02.txt>.
 
    [RFC8040]  Bierman, A., Bjorklund, M., and K. Watsen, "RESTCONF
               Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
@@ -604,19 +646,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 Appendix A.  Changes between revisions
 
    Initial version
-
-
-
-
-
-
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                [Page 11]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
 
 Appendix B.  Tracing configuration changes
 
@@ -640,33 +669,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Quilbeuf & Claise         Expires 10 March 2023                [Page 12]
+Quilbeuf & Claise         Expires 17 March 2023                [Page 12]
