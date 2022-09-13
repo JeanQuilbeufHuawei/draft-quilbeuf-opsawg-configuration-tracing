@@ -232,19 +232,25 @@
         <figure anchor="configuration-tracing" >
           <name>Example of Configuration Tracing. tx: transaction, NB: northbound, SB: southbound</name>
           <artwork><![CDATA[
-               -> match SB tx-1     +---------------+
-        .-----------[3’,4’]-------->| Orchestrator  |
-        |          commit-id <-     +---------------+
-        |                                  | tx-1
-        |                                  v
-        |       -> match SB tx-2    +---------------+
-        |     .------[3,4]--------->|   Controller  |
-        |     |  NB-tx-id tx-1 <-   +---------------+
-        |     |                           | tx-2
-        v     v                           v
-      +----------+   -> commit-id       +----+
-      | Software |---------[2]--------->| NE |
-      +----------+   NB-tx-id tx-2 <-   +----+
+                                                     +---------------+
+        .----------------[5]match SB tx-1----------->|               |
+        |                                            | Orchestrator  |
+        | ----------------[6]commit-id---------------|               |
+        | |                                          +---------------+
+        | |                                                | tx-1
+        | |                                                v
+        | |                                          +---------------+
+        | |   .-----------[3] match SB tx-2--------->|               |
+        | |   |                                      |   Controller  |
+        | |   | .-----------[4] NB-tx-id tx-1--------|               |
+        | |   | |                                    +---------------+
+        | |   | |                                          | tx-2
+        | v   | v                                          v
+      +-----------+                                      +----+
+      | Anomaly   |--[1] match commit-id before time t-->|    |
+      | Detection |                                      | NE |
+      | System    |<--------- [2] NB-tx-id tx-2 ----- ---|    |
+      +----------+                                       +----+
       ]]>
           </artwork>
         </figure>
