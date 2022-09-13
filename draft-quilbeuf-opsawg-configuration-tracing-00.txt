@@ -94,12 +94,12 @@ Table of Contents
    4.  YANG module . . . . . . . . . . . . . . . . . . . . . . . . .   7
      4.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .   7
      4.2.  YANG module ietf-external-transaction-id  . . . . . . . .   8
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  11
    7.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  11
    8.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  11
    9.  Normative References  . . . . . . . . . . . . . . . . . . . .  11
-   10. Informative References  . . . . . . . . . . . . . . . . . . .  11
+   10. Informative References  . . . . . . . . . . . . . . . . . . .  12
    Appendix A.  Changes between revisions  . . . . . . . . . . . . .  12
    Appendix B.  Tracing configuration changes  . . . . . . . . . . .  12
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  12
@@ -425,6 +425,15 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    forced transaction id, then the transaction IDs resulting of the
    configuration of the servers must be stored in that list.
 
+   The use cases defined in Section 3.1 are not specific to NETCONF and
+   the mechanism described in this document could be adapted to other
+   configuration mechanisms.  For instance, a configuration modification
+   pushed via CLI can be identified via a label.  As such cases are
+   difficult to standardize, we won't cover them in this document.
+   However, our model could be extended to support such mechanism for
+   instance by using a configuration label instead of the northbound
+   transaction ID.
+
 4.2.  YANG module ietf-external-transaction-id
 
    <CODE BEGINS> file "ietf-external-transaction-id@2021-11-03.yang"
@@ -434,6 +443,13 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
        "urn:ietf:params:xml:ns:yang:ietf-external-transaction-id";
      prefix ext-txid;
 
+
+
+Quilbeuf & Claise         Expires 17 March 2023                 [Page 8]
+
+Internet-Draft       Configuration Tracing via tx-id      September 2022
+
+
      import ietf-netconf-txid {
        prefix ietf-netconf-txid;
      }
@@ -442,14 +458,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
        "IETF OPSAWG Working Group";
      contact
        "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
-
-
-
-Quilbeuf & Claise         Expires 17 March 2023                 [Page 8]
-
-Internet-Draft       Configuration Tracing via tx-id      September 2022
-
-
         WG List:  <mailto:opsawg@ietf.org>
         Author:   Benoit Claise  <mailto:benoit.claise@huawei.com>
         Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>";
@@ -490,14 +498,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
          "Initial revision";
        reference
          "RFC xxxx: Title to be completed";
-     }
-
-     container external-transactions-id {
-       config false;
-       description
-         "Contains the IDs of configuration transactions that are
-          external to the current device.";
-       list configuration-change {
 
 
 
@@ -506,6 +506,14 @@ Quilbeuf & Claise         Expires 17 March 2023                 [Page 9]
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
+     }
+
+     container external-transactions-id {
+       config false;
+       description
+         "Contains the IDs of configuration transactions that are
+          external to the current device.";
+       list configuration-change {
          key "local-commit-id";
          description
            "List of configuration changes, identified by their
@@ -546,14 +554,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
               corresponding to local-commit-id. ";
          }
        }
-     }
-   }
-   <CODE ENDS>
-
-5.  Security Considerations
-
-
-
 
 
 
@@ -561,6 +561,12 @@ Quilbeuf & Claise         Expires 17 March 2023                [Page 10]
 
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
+
+     }
+   }
+   <CODE ENDS>
+
+5.  Security Considerations
 
 6.  IANA Considerations
 
@@ -602,12 +608,6 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
-   [RFC8340]  Bjorklund, M. and L. Berger, Ed., "YANG Tree Diagrams",
-              BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
-              <https://www.rfc-editor.org/info/rfc8340>.
-
-10.  Informative References
-
 
 
 
@@ -617,6 +617,12 @@ Quilbeuf & Claise         Expires 17 March 2023                [Page 11]
 
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
+
+   [RFC8340]  Bjorklund, M. and L. Berger, Ed., "YANG Tree Diagrams",
+              BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
+              <https://www.rfc-editor.org/info/rfc8340>.
+
+10.  Informative References
 
    [I-D.ietf-opsawg-service-assurance-architecture]
               Claise, B., Quilbeuf, J., Lopez, D. R., Voyer, D., and T.
@@ -659,12 +665,6 @@ Authors' Addresses
    Huawei
 
    Email: benoit.claise@huawei.com
-
-
-
-
-
-
 
 
 
