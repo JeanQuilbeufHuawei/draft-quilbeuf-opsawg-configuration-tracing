@@ -160,6 +160,21 @@
           In the latter case, only versioned nodes for which the transaction ID differs need to be updated.
         </t>
         <t>
+          A server considers as a northbound transaction a transaction that modifies its configuration.
+          It is technically possible that several clients push configuration to the candidate configuration datastore  and only one of them commits the changes to the running configuration datastore.
+          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several northbound transaction id.
+          Although, this case is technically possible, it is a bad practice. We won’t cover it in this document.
+          In other terms, a given configuration modification on a server is caused by a single northbound transaction, and thus has a single corresponding northbound transaction ID.
+        </t>
+        <t>
+          A client considers as a southbound transaction the modification of a server configuration.
+          Ideally, the client should be able to indicate to the server a specific ID to use for that transaction.
+          However, the server might not support it, depending on how  <xref target="I-D.lindblad-netconf-transaction-id"/> evolves.
+          In that case, the server is the one generating the ID for the transaction between the client and the server.
+          If the client has to configure several servers, for instance to enable a network service, then each of the configured servers might return a different ID.
+          Therefore, for a configuration modification on the client might be implemented via several southbound transactions and thus might have several southbound transaction ID.
+        </t>
+        <t>
           Our proposed solution is to store, on the server, a mapping between the existing local commit id and the northbound and southbound transactions related to that local configuration change.
           The mapping is read only and populated by the server at configuration time as follows:
         </t>
@@ -168,6 +183,7 @@
             Northbound transaction:
             If the server is configured by a client that supports configuration tracing, the client MUST send a transaction-ID and its own ID.
             The server stores both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
+            Or, if the server does not support receiving transaction ID from the client, it generates one and send it back to the client.
             If the client does not support configuration tracing, none of these entries are populated.
           </li>
           <li>
@@ -198,10 +214,11 @@
           </li>
           <li>
             The software queries the NE for the northbound transaction-id and NMS id associated to the commit-id from step 1.
-            If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here (first use case).
+            If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            Otherwise, queries the NMS identified by the northbound-client-id found at the previous step, looking for matching for the northbound-transaction-id from the previous step with a southbound-transaction-id in the NMS. (Second use case)
+            Otherwise, the software queries the NMS identified by the northbound-client-id found at the previous step, looking for matching for the northbound-transaction-id from the previous step
+            with a southbound-transaction-id in the NMS.
           </li>
           <li>
             From that query, the software knows the local-commit-id on the NMS.
@@ -381,12 +398,6 @@ module ietf-external-transaction-id {
     <section>
       <name>Open Issues / TODO</name>
       <ul>
-        <li>
-          A given commit can actually contain several transaction IDs, so we probably need to update the model in order to support that.
-          It’s also a question of which interface we open for the software to find the issue.
-          If that software can work with versioned nodes then it could identify a specific transaction id, rather than the local commit id.
-          We won’t consider that case as it is bad practice to modify a shared datastore without committing.
-        </li>
         <li>
           Schema describing the configuration of a NE
         </li>
