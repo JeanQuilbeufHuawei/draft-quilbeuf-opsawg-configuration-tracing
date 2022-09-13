@@ -68,8 +68,8 @@
       </t>
       <t>
         In this document, we focus only on configuration pushed via NETCONF <xref target="RFC6241"/>.
-        The rationale for this choice is that NETCONF is better suited for normalization than other protocols (SNMP, CLI),
-        notably because the notion of transaction ID <xref target="I-D.lindblad-netconf-transaction-id"/> from RESTCONF <xref target="RFC8040"/> already exists to track configuration changes.
+        The rationale for this choice is that NETCONF is better suited for normalization than other protocols (SNMP, CLI).
+        Another reason is that the notion of transaction ID, useful to track configuration modification, is already defined in <xref target="I-D.lindblad-netconf-transaction-id"/> and comes from RESTCONF <xref target="RFC8040"/>.
         The same network element, or NETCONF <xref target="RFC6241"/> server, can be configured by different NMSs or NETCONF clients.
         If an issue arises, one of the starting points for investigation is the configuration modification on the devices supporting the impacted service.
         In the best case, there is a dedicated user for each client and the timestamp of the modification allows tracing the problematic modification to its cause.
@@ -181,17 +181,15 @@
         <t>
           A server considers as a northbound transaction a transaction that modifies its configuration.
           On <xref target="hierarchical-configuration"/>, tx-1 is a northbound transaction for the Controller.
-          It is technically possible that several clients push configuration to the candidate configuration datastore  and only one of them commits the changes to the running configuration datastore.
-          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several northbound transaction id.
-          Although, this case is technically possible, it is a bad practice. We won’t cover it in this document.
-          In other terms, a given configuration modification on a server is caused by a single northbound transaction, and thus has a single corresponding northbound transaction ID.
         </t>
         <t>
           A client considers as a southbound transaction the modification of a server configuration.
           On <xref target="hierarchical-configuration"/>, tx-2 and tx-3 are southbound transactions for the Controller.
-          Ideally, the client should be able to indicate to the server a specific ID to use for that transaction.
-          However, the server might not support it, depending on how  <xref target="I-D.lindblad-netconf-transaction-id"/> evolves.
-          In that case, the server is the one generating the ID for the transaction between the client and the server.
+        </t>
+        <t>
+          If the set-tx-id feature is enabled (see open issue in <xref target="set-tx-id"/>), the client can specify its own transaction ID when sending the configuration ID for the server.
+          In that case, the Controller in <xref target="hierarchical-configuration"/> could use the same transaction-id for both tx-2 and tx-3 and save a single southbound transaction ID for that commit.
+          Otherwise, the server is the one generating the ID for the transaction between the client and the server.
           If the client has to configure several servers, for instance to enable a network service, then each of the configured servers might return a different ID.
           Therefore, for a configuration modification on the client might be implemented via several southbound transactions and thus might have several southbound transaction ID.
         </t>
@@ -202,24 +200,29 @@
         <ul>
           <li>
             Northbound transaction:
-            If the server is configured by a client that supports configuration tracing, the client MUST send a transaction-ID and its own ID.
-            The server stores both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
-            Or, if the server does not support receiving transaction ID from the client, it generates one and sends it back to the client.
+            If the set-tx-id feature is available (see <xref target="set-tx-id"/>), the server MUST accept a transaction-ID and a client ID from client supporting configuration tracing.
+            The server MUST store both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
+            If the set-tx-id feature is not available, the sever MUST accept the client ID, generate a transaction ID, save both the transaction ID as northbound transaction id and the client ID as northbound client ID, and send back the transaction ID to the client.
             If the client does not support configuration tracing, none of these entries are populated.
             In <xref target="hierarchical-configuration"/>, for the Controller, the northbound transaction ID is the ID of tx-1.
           </li>
           <li>
             Southbound transaction:
-            If the server has to configure some other servers in response to a local configuration change, then it MUST generate
-            a transaction ID, send it along with its ID to the configured servers, and save it as a southbound transaction ID.
-            Or, if the configured NETCONF server do not support being configured with transaction ID, it MUST record the transaction ID resulting of the configuration of each server.
+            If the set-tx-id feature is available (see <xref target="set-tx-id"/>), when a client has to configure servers in response to a local configuration change, then it MUST generate a transaction ID, send it along with its ID to the configured servers, and save it as a southbound transaction ID.
+            If the set-tx-id feature is not available, it MUST sent its own ID with the configuration, receive back the transaction ID from each server, and save all of them as southbound transaction ID.
             In <xref target="hierarchical-configuration"/>, for the Controller, the southbound transaction IDs are the IDs of tx-2 and tx-3.
           </li>
         </ul>
         <t>
-          The two cases above are not mutually exclusive. A Controller can be configured by an Orchestrator and configure network equipment in turn, as show in <xref target="hierarchical-configuration"/>.
+          The two cases above are not mutually exclusive. A Controller can be configured by an Orchestrator and configure network equipment in turn, as shown in <xref target="hierarchical-configuration"/>.
           In that case, both the northbound transaction ID, shared with the Orchestrator and the southbound transaction IDs, shared with the network equipments, are stored in the Controller.
           They are both associated to the corresponding configuration commit in the Controller.
+        </t>
+        <t>
+          It is technically possible that several clients push configuration to the candidate configuration datastore  and only one of them commits the changes to the running configuration datastore.
+          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several northbound transaction id.
+          Although, this case is technically possible, it is a bad practice. We won’t cover it in this document.
+          In other terms, we assume that a given configuration modification on a server is caused by a single northbound transaction, and thus has a single corresponding northbound transaction ID.
         </t>
       </section>
       <section>
@@ -230,21 +233,27 @@
           It should as well have access to the network equipment in which an issue is detected.
         </t>
         <figure anchor="configuration-tracing" >
-          <name>Example of Configuration Tracing. tx: transaction, NB: northbound, SB: southbound</name>
+          <name>Example of Configuration Tracing. tx: transaction, NB: northbound, SB: southbound. The number between square brackets refer to steps in the listing below.</name>
           <artwork><![CDATA[
-               -> match SB tx-1     +---------------+
-        .-----------[3’,4’]-------->| Orchestrator  |
-        |          commit-id <-     +---------------+
-        |                                  | tx-1
-        |                                  v
-        |       -> match SB tx-2    +---------------+
-        |     .------[3,4]--------->|   Controller  |
-        |     |  NB-tx-id tx-1 <-   +---------------+
-        |     |                           | tx-2
-        v     v                           v
-      +----------+   -> commit-id       +----+
-      | Software |---------[2]--------->| NE |
-      +----------+   NB-tx-id tx-2 <-   +----+
+                                                  +---------------+
+     .----------------[5]match SB tx-1----------->|               |
+     |                                            | Orchestrator  |
+     | ----------------[6]commit-id---------------|               |
+     | |                                          +---------------+
+     | |                                                | tx-1
+     | |                                                v
+     | |                                          +---------------+
+     | |   .-----------[3] match SB tx-2--------->|               |
+     | |   |                                      |   Controller  |
+     | |   | .-----------[4] NB-tx-id tx-1--------|               |
+     | |   | |                                    +---------------+
+     | |   | |                                          | tx-2
+     | v   | v                                          v
+   +-----------+                                      +----+
+   | Anomaly   |--[1] match commit-id before time t-->|    |
+   | Detection |                                      | NE |
+   | System    |<--------- [2] NB-tx-id tx-2 ----- ---|    |
+   +----------+                                       +----+
       ]]>
           </artwork>
         </figure>
@@ -254,31 +263,36 @@
         </t>
         <ol>
           <li>
-            Identify the commit id that created an issue.
-            This step is not defined here, we assume that the software is able to do it.
+            The Anomaly Detection System (ADS) identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected.
           </li>
           <li>
-            The software queries the NE for the northbound transaction-id and NMS id associated to the commit-id from step 1.
-            In <xref target="configuration-tracing"/>, that step would query NE for a northbound transaction-id given the commit-id from step-1 and get the id of tx-2 as a result.
-            If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here.
+            The ADS queries the NE for the northbound transaction-id and northbound client id associated to the commit-id from step 1.
+            In <xref target="configuration-tracing"/>, that step would query NE for a northbound transaction-id given the commit-id from step-1 and get the id of tx-2 and the id of the Controller as a result.
+            If they are no results, or no associated northbound-transaction-id, the change was not done by a client compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            Otherwise, the software queries the NMS identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
-            with a southbound-transaction-id in the NMS.
-            In <xref target="configuration-tracing"/>, for that step (1st iteration), the software would look for the id of tx-2 in the southbound transaction IDs stored in the Controller.
+            Otherwise, the ADS queries the client identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
+            with a southbound-transaction-id in the client version of the YANG model.
+            In <xref target="configuration-tracing"/>, for that step, the software would look for the id of tx-2 in the southbound transaction IDs stored in the Controller.
           </li>
           <li>
-            From that query, the software knows the local-commit-id on the NMS.
-            If the local-commit-id is associated to a northbound-transaction-id, the software restarts at step 3.
-            In <xref target="configuration-tracing"/>  in the first iteration (step 4) a northbound transaction id is found (the id of tx-1).
-            For the second iteration (step 4’), there is no more northbound transaction id to iterate to.
+            From that query, the ADS knows the local-commit-id on the client (Controller in our case).
+            Since the local-commit-id is associated to a northbound-transaction-id, namely the id of tx-1, the ADS continues the investigation.
+            The client to query is identified by the northbound-client-id, in our case the Orchestrator.
           </li>
           <li>
-            Finally, the local-commit-id points to the changes in topmost NMS that eventually triggered the problematic configuration in the network equipment.
-            These changes are now available for further manual or automated analysis, such as analyzing the root cause of the issue.
-            In <xref target="configuration-tracing"/>, the final commit-id obtained is from the Orchestrator and may point to a service request, for instance.
+            The ADS queries the Orchestrator, trying to find a match for the Id of tx-1 as a southbound transaction ID.
+          </li>
+          <li>
+            Finally, the ADS receives the commit-id from the Orchestrator that ultimately caused the issue in the NE.
+            Since there is no associated northbound transaction id, the investigation stops here.
+            The modification associated to the commit-id, for instance a service request, is now available for further manual or automated analysis, such as analyzing the root cause of the issue.
           </li>
         </ol>
+        <t>
+          Note that step 5 and 6 are actually a repetition of step 3 and 4.
+          The general algorithm is to continue looking for a client until no more client (no more northbound-transaction-id) can be found in the current element.
+        </t>
       </section>
     </section>
     <section anchor="yang-module">
@@ -309,7 +323,7 @@
           If the configured server do not support having a forced transaction id, then the transaction IDs resulting of the configuration of the servers must be stored in that list.
         </t>
         <t>
-          The use cases defined in <xref target="use-cases"/> are not specific to NETCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
+          Even if this document focuses only on NETCONF, the use cases defined in <xref target="use-cases"/> are not specific to NETCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
           For instance, a configuration modification pushed via CLI can be identified via a label.
           As such cases are difficult to standardize, we won’t cover them in this document.
           However, our model could be extended to support such mechanism for instance by using a configuration label instead of the northbound transaction ID.
@@ -353,6 +367,16 @@
                  southbound transaction id B, it’s not clear whether the issue comes from commit 1 or commit 2 in the client
         </li>
       </ul>
+      <section anchor="set-tx-id">
+        <name>Possibility of setting the transaction Id from the client </name>
+        <t>
+          In the -00 version of <xref target="I-D.lindblad-netconf-transaction-id"/>, there is the possibility for
+          the client to set the transaction id when sending the configuration to the server.
+          This feature has been removed in subsequent versions.
+          In this draft, we call this feature set-tx-id.
+          Such a feature would simplify the present draft, therefore we try to present two versions, one with the feature set-tx-id available and one without.
+        </t>
+      </section>
     </section>
   </middle>
   <back>
