@@ -159,8 +159,28 @@
           The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
           In the latter case, only versioned nodes for which the transaction ID differs need to be updated.
         </t>
+        <figure anchor="hierarchical-configuration" >
+          <name>Example of Hierarchical Configuration</name>
+          <artwork><![CDATA[
+                         -----------------
+                         | Orchestrator  |
+                         -----------------
+                                | tx-1
+                                v
+                         -----------------
+                         |   Controller  |
+                         -----------------
+                           | tx-2      | tx-3
+                           v           v
+                        -------     -------
+                        | NE1 |     | NE2 |
+                        -------     -------
+            ]]>
+          </artwork>
+        </figure>
         <t>
           A server considers as a northbound transaction a transaction that modifies its configuration.
+          On <xref target="hierarchical-configuration"/>, tx-1 is a northbound transaction for the Controller.
           It is technically possible that several clients push configuration to the candidate configuration datastore  and only one of them commits the changes to the running configuration datastore.
           From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several northbound transaction id.
           Although, this case is technically possible, it is a bad practice. We won’t cover it in this document.
@@ -168,6 +188,7 @@
         </t>
         <t>
           A client considers as a southbound transaction the modification of a server configuration.
+          On <xref target="hierarchical-configuration"/>, tx-2 and tx-3 are southbound transactions for the Controller.
           Ideally, the client should be able to indicate to the server a specific ID to use for that transaction.
           However, the server might not support it, depending on how  <xref target="I-D.lindblad-netconf-transaction-id"/> evolves.
           In that case, the server is the one generating the ID for the transaction between the client and the server.
@@ -183,15 +204,16 @@
             Northbound transaction:
             If the server is configured by a client that supports configuration tracing, the client MUST send a transaction-ID and its own ID.
             The server stores both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
-            Or, if the server does not support receiving transaction ID from the client, it generates one and send it back to the client.
+            Or, if the server does not support receiving transaction ID from the client, it generates one and sends it back to the client.
+            In <xref target="hierarchical-configuration"/>, for the Controller, the northbound transaction ID is the ID of tx-1.
             If the client does not support configuration tracing, none of these entries are populated.
           </li>
           <li>
             Southbound transaction:
             If the server has to configure some other servers in response to a local configuration change, then it MUST generate
             a transaction ID, send it along with its ID to the configured servers, and save it as a southbound transaction ID.
-            Or, if the configured NETCONF server do not support being configured with transaction ID, it MUST record the transaction ID
-            resulting of the configuration of each server.
+            Or, if the configured NETCONF server do not support being configured with transaction ID, it MUST record the transaction ID resulting of the configuration of each server.
+            In <xref target="hierarchical-configuration"/>, for the Controller, the southbound transaction IDs are the IDs of tx-2 and tx-3.
           </li>
         </ul>
         <t>
