@@ -160,21 +160,21 @@
           In the latter case, only versioned nodes for which the transaction ID differs need to be updated.
         </t>
         <figure anchor="hierarchical-configuration" >
-          <name>Example of Hierarchical Configuration</name>
+          <name>Example of Hierarchical Configuration. tx: transaction</name>
           <artwork><![CDATA[
-                         -----------------
+                         +---------------+
                          | Orchestrator  |
-                         -----------------
+                         +---------------+
                                 | tx-1
                                 v
-                         -----------------
+                         +---------------+
                          |   Controller  |
-                         -----------------
+                         +---------------+
                            | tx-2      | tx-3
                            v           v
-                        -------     -------
+                        +-----+     +-----+
                         | NE1 |     | NE2 |
-                        -------     -------
+                        +-----+     +-----+
             ]]>
           </artwork>
         </figure>
@@ -205,8 +205,8 @@
             If the server is configured by a client that supports configuration tracing, the client MUST send a transaction-ID and its own ID.
             The server stores both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
             Or, if the server does not support receiving transaction ID from the client, it generates one and sends it back to the client.
-            In <xref target="hierarchical-configuration"/>, for the Controller, the northbound transaction ID is the ID of tx-1.
             If the client does not support configuration tracing, none of these entries are populated.
+            In <xref target="hierarchical-configuration"/>, for the Controller, the northbound transaction ID is the ID of tx-1.
           </li>
           <li>
             Southbound transaction:
@@ -217,7 +217,7 @@
           </li>
         </ul>
         <t>
-          The two cases above are not mutually exclusive. A Controller can be configured by an Orchestrator and configure network equipment in turn.
+          The two cases above are not mutually exclusive. A Controller can be configured by an Orchestrator and configure network equipment in turn, as show in <xref target="hierarchical-configuration"/>.
           In that case, both the northbound transaction ID, shared with the Orchestrator and the southbound transaction IDs, shared with the network equipments, are stored in the Controller.
           They are both associated to the corresponding configuration commit in the Controller.
         </t>
@@ -229,6 +229,29 @@
           To do so, the software doing the tracing should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
           It should as well have access to the network equipment in which an issue is detected.
         </t>
+        <figure anchor="configuration-tracing" >
+          <name>Example of Configuration Tracing. tx: transaction, NB: northbound, SB: southbound</name>
+          <artwork><![CDATA[
+               -> match SB tx-1     +---------------+
+        .-----------[3’,4’]-------->| Orchestrator  |
+        |          commit-id <-     +---------------+
+        |                                  | tx-1
+        |                                  v
+        |       -> match SB tx-2    +---------------+
+        |     .------[3,4]--------->|   Controller  |
+        |     |  NB-tx-id tx-1 <-   +---------------+
+        |     |                           | tx-2
+        v     v                           v
+      +----------+   -> commit-id       +----+
+      | Software |---------[2]--------->| NE |
+      +----------+   NB-tx-id tx-2 <-   +----+
+      ]]>
+          </artwork>
+        </figure>
+        <t>
+          The steps for a software to trace a configuration modification in a Network Equipment back to a service request are illustrated in <xref target="configuration-tracing"/>.
+          They are detailed below.
+        </t>
         <ol>
           <li>
             Identify the commit id that created an issue.
@@ -236,19 +259,24 @@
           </li>
           <li>
             The software queries the NE for the northbound transaction-id and NMS id associated to the commit-id from step 1.
+            In <xref target="configuration-tracing"/>, that step would query NE for a northbound transaction-id given the commit-id from step-1 and get the id of tx-2 as a result.
             If they are no results, or no associated northbound-transaction-id, the change was not done by NMS compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            Otherwise, the software queries the NMS identified by the northbound-client-id found at the previous step, looking for matching for the northbound-transaction-id from the previous step
+            Otherwise, the software queries the NMS identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
             with a southbound-transaction-id in the NMS.
+            In <xref target="configuration-tracing"/>, for that step (1st iteration), the software would look for the id of tx-2 in the southbound transaction IDs stored in the Controller.
           </li>
           <li>
             From that query, the software knows the local-commit-id on the NMS.
             If the local-commit-id is associated to a northbound-transaction-id, the software restarts at step 3.
+            In <xref target="configuration-tracing"/>  in the first iteration (step 4) a northbound transaction id is found (the id of tx-1).
+            For the second iteration (step 4’), there is no more northbound transaction id to iterate to.
           </li>
           <li>
             Finally, the local-commit-id points to the changes in topmost NMS that eventually triggered the problematic configuration in the network equipment.
             These changes are now available for further manual or automated analysis, such as analyzing the root cause of the issue.
+            In <xref target="configuration-tracing"/>, the final commit-id obtained is from the Orchestrator and may point to a service request, for instance.
           </li>
         </ol>
       </section>
@@ -312,13 +340,17 @@
       <name>Open Issues / TODO</name>
       <ul>
         <li>
-          Schema describing the configuration of a NE
+          TODO: missing definitions or link to definitions in terminology
         </li>
         <li>
-          Schema describing the configuration of a Controller that further configures a NE
-        </li>
-        <li>
-          Schema describing the configuration of a Controller that further configures a NE
+          Evaluate risk of collision between transaction ids in the southbound-transaction id.
+          Example scenario:
+          &nbsp;&nbsp;1) client configures server 1 and server 2 for commit-id (client) 1
+                the southbound transaction IDs are A (server 1)  B (server 2)
+          &nbsp;&nbsp;2) client configures server 1 and server 2 for commit-id (client) 2
+                the southbound transaction IDs are B (server 1)  C (server 2)
+          &nbsp;&nbsp;3) the last configuration of server 1 causes an issue, when looking for
+                 southbound transaction id B, it’s not clear whether the issue comes from commit 1 or commit 2 in the client
         </li>
       </ul>
     </section>
@@ -346,8 +378,7 @@
     </section>
     <section numbered="false">
       <name>Acknowledgements</name>
-      <t>
-          ...
+        <t>
         </t>
     </section>
   </back>
