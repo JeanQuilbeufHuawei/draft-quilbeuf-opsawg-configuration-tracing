@@ -410,19 +410,25 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    should as well have access to the network equipment in which an issue
    is detected.
 
-                  -> match SB tx-1     +---------------+
-           .-----------[3’,4’]-------->| Orchestrator  |
-           |          commit-id <-     +---------------+
-           |                                  | tx-1
-           |                                  v
-           |       -> match SB tx-2    +---------------+
-           |     .------[3,4]--------->|   Controller  |
-           |     |  NB-tx-id tx-1 <-   +---------------+
-           |     |                           | tx-2
-           v     v                           v
-         +----------+   -> commit-id       +----+
-         | Software |---------[2]--------->| NE |
-         +----------+   NB-tx-id tx-2 <-   +----+
+                                                     +---------------+
+        .----------------[5]match SB tx-1----------->|               |
+        |                                            | Orchestrator  |
+        | ----------------[6]commit-id---------------|               |
+        | |                                          +---------------+
+        | |                                                | tx-1
+        | |                                                v
+        | |                                          +---------------+
+        | |   .-----------[3] match SB tx-2--------->|               |
+        | |   |                                      |   Controller  |
+        | |   | .-----------[4] NB-tx-id tx-1--------|               |
+        | |   | |                                    +---------------+
+        | |   | |                                          | tx-2
+        | v   | v                                          v
+      +-----------+                                      +----+
+      | Anomaly   |--[1] match commit-id before time t-->|    |
+      | Detection |                                      | NE |
+      | System    |<--------- [2] NB-tx-id tx-2 ----- ---|    |
+      +----------+                                       +----+
 
 
       Figure 2: Example of Configuration Tracing. tx: transaction, NB:
@@ -433,15 +439,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    Network Equipment back to a service request are illustrated in
    Figure 2.  They are detailed below.
 
-   1.  The software identifies the commit id that created an issue.
-       This step is not defined here, we assume that the software is
-       able to do it.
-
-
-
-
-
-
+   1.  The Anomaly Detection System (ADS) identifies the commit id that
+       created an issue, for instance by looking for the last commit-id
+       occuring before the issue was detected.
 
 
 
@@ -450,15 +450,16 @@ Quilbeuf & Claise         Expires 17 March 2023                 [Page 8]
 Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
-   2.  The software queries the NE for the northbound transaction-id and
-       NMS id associated to the commit-id from step 1.  In Figure 2,
-       that step would query NE for a northbound transaction-id given
-       the commit-id from step-1 and get the id of tx-2 as a result.  If
-       they are no results, or no associated northbound-transaction-id,
-       the change was not done by a client compatible with the present
-       draft, and the investigation stops here.
+   2.  The ADS queries the NE for the northbound transaction-id and
+       northbound client id associated to the commit-id from step 1.  In
+       Figure 2, that step would query NE for a northbound transaction-
+       id given the commit-id from step-1 and get the id of tx-2 and the
+       id of the Controller as a result.  If they are no results, or no
+       associated northbound-transaction-id, the change was not done by
+       a client compatible with the present draft, and the investigation
+       stops here.
 
-   3.  Otherwise, the software queries the client identified by the
+   3.  Otherwise, the ADS queries the client identified by the
        northbound-client-id found at the previous step, looking for a
        match of the northbound-transaction-id from the previous step
        with a southbound-transaction-id in the client version of the
@@ -466,24 +467,23 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
        for the id of tx-2 in the southbound transaction IDs stored in
        the Controller.
 
-   4.  From that query, the software knows the local-commit-id on the
-       client (Controller in our case).  Since the local-commit-id is
+   4.  From that query, the ADS knows the local-commit-id on the client
+       (Controller in our case).  Since the local-commit-id is
        associated to a northbound-transaction-id, namely the id of tx-1,
-       the software continues the investigation.  The client to query is
-       identified by the northbound-client-id associated to the
-       northbound-transaction-id.  In the Figure, that client is the
+       the ADS continues the investigation.  The client to query is
+       identified by the northbound-client-id, in our case the
        Orchestrator.
 
-   5.  The software queries the Orchestrator, trying to find a match for
-       the Id of tx-1 as a southbound transaction ID.
+   5.  The ADS queries the Orchestrator, trying to find a match for the
+       Id of tx-1 as a southbound transaction ID.
 
-   6.  Finally, the the software receives the commit-id from the
-       Orchestrator that ultimately caused the issue in the NE.  Since
-       there is no associated northbound transaction id, the
-       investigation stops here.  The modification associated to the
-       commit-id, for instance a service request, is now available for
-       further manual or automated analysis, such as analyzing the root
-       cause of the issue.
+   6.  Finally, the ADS receives the commit-id from the Orchestrator
+       that ultimately caused the issue in the NE.  Since there is no
+       associated northbound transaction id, the investigation stops
+       here.  The modification associated to the commit-id, for instance
+       a service request, is now available for further manual or
+       automated analysis, such as analyzing the root cause of the
+       issue.
 
    Note that step 5 and 6 are actually a repetition of step 3 and 4.
    The general algorithm is to continue looking for a client until no

@@ -235,25 +235,25 @@
         <figure anchor="configuration-tracing" >
           <name>Example of Configuration Tracing. tx: transaction, NB: northbound, SB: southbound. The number between square brackets refer to steps in the listing below.</name>
           <artwork><![CDATA[
-                                                     +---------------+
-        .----------------[5]match SB tx-1----------->|               |
-        |                                            | Orchestrator  |
-        | ----------------[6]commit-id---------------|               |
-        | |                                          +---------------+
-        | |                                                | tx-1
-        | |                                                v
-        | |                                          +---------------+
-        | |   .-----------[3] match SB tx-2--------->|               |
-        | |   |                                      |   Controller  |
-        | |   | .-----------[4] NB-tx-id tx-1--------|               |
-        | |   | |                                    +---------------+
-        | |   | |                                          | tx-2
-        | v   | v                                          v
-      +-----------+                                      +----+
-      | Anomaly   |--[1] match commit-id before time t-->|    |
-      | Detection |                                      | NE |
-      | System    |<--------- [2] NB-tx-id tx-2 ----- ---|    |
-      +----------+                                       +----+
+                                                  +---------------+
+     .----------------[5]match SB tx-1----------->|               |
+     |                                            | Orchestrator  |
+     | ----------------[6]commit-id---------------|               |
+     | |                                          +---------------+
+     | |                                                | tx-1
+     | |                                                v
+     | |                                          +---------------+
+     | |   .-----------[3] match SB tx-2--------->|               |
+     | |   |                                      |   Controller  |
+     | |   | .-----------[4] NB-tx-id tx-1--------|               |
+     | |   | |                                    +---------------+
+     | |   | |                                          | tx-2
+     | v   | v                                          v
+   +-----------+                                      +----+
+   | Anomaly   |--[1] match commit-id before time t-->|    |
+   | Detection |                                      | NE |
+   | System    |<--------- [2] NB-tx-id tx-2 ----- ---|    |
+   +----------+                                       +----+
       ]]>
           </artwork>
         </figure>
@@ -263,30 +263,28 @@
         </t>
         <ol>
           <li>
-            The software identifies the commit id that created an issue.
-            This step is not defined here, we assume that the software is able to do it.
+            The Anomaly Detection System (ADS) identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected.
           </li>
           <li>
-            The software queries the NE for the northbound transaction-id and NMS id associated to the commit-id from step 1.
-            In <xref target="configuration-tracing"/>, that step would query NE for a northbound transaction-id given the commit-id from step-1 and get the id of tx-2 as a result.
+            The ADS queries the NE for the northbound transaction-id and northbound client id associated to the commit-id from step 1.
+            In <xref target="configuration-tracing"/>, that step would query NE for a northbound transaction-id given the commit-id from step-1 and get the id of tx-2 and the id of the Controller as a result.
             If they are no results, or no associated northbound-transaction-id, the change was not done by a client compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            Otherwise, the software queries the client identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
+            Otherwise, the ADS queries the client identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
             with a southbound-transaction-id in the client version of the YANG model.
             In <xref target="configuration-tracing"/>, for that step, the software would look for the id of tx-2 in the southbound transaction IDs stored in the Controller.
           </li>
           <li>
-            From that query, the software knows the local-commit-id on the client (Controller in our case).
-            Since the local-commit-id is associated to a northbound-transaction-id, namely the id of tx-1, the software continues the investigation.
-            The client to query is identified by the northbound-client-id associated to the northbound-transaction-id.
-            In the Figure, that client is the Orchestrator.
+            From that query, the ADS knows the local-commit-id on the client (Controller in our case).
+            Since the local-commit-id is associated to a northbound-transaction-id, namely the id of tx-1, the ADS continues the investigation.
+            The client to query is identified by the northbound-client-id, in our case the Orchestrator.
           </li>
           <li>
-            The software queries the Orchestrator, trying to find a match for the Id of tx-1 as a southbound transaction ID.
+            The ADS queries the Orchestrator, trying to find a match for the Id of tx-1 as a southbound transaction ID.
           </li>
           <li>
-            Finally, the the software receives the commit-id from the Orchestrator that ultimately caused the issue in the NE.
+            Finally, the ADS receives the commit-id from the Orchestrator that ultimately caused the issue in the NE.
             Since there is no associated northbound transaction id, the investigation stops here.
             The modification associated to the commit-id, for instance a service request, is now available for further manual or automated analysis, such as analyzing the root cause of the issue.
           </li>
