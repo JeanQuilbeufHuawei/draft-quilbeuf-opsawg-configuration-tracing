@@ -41,8 +41,8 @@
       <t>
         Network equipments are often configured by a variety of network management systems (NMS), protocols, and people.
         If a network issue arises because of a wrong configuration modification, it's important to quickly identify the specific service request and obtain the reason for pushing that modification.
-        Another potential network issue can stem from concurrent NMS' with overlapping intent, each having their own tasks to perform: in such a case, it's important to map the respective modifications to its originating NMS.
-        This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.
+        Another potential network issue can stem from concurrent NMS's with overlapping intent, each having their own tasks to perform: in such a case, it's important to map the respective modifications to its originating NMS.
+        This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request, in the context of NETCONF.
         Such a mechanism is required for autonomous networks, to trace the reason of a particular configuration change that lead to an anomaly detection or a broken SLA.
         This mechanism facilitates the troubleshooting, the post mortem analysis, and in the end the closed loop automation required for self-healing networks.
         The specifications contain a new YANG module mapping a local configuration change to the corresponding northbound transaction, up to the controller or even the orchestrator.
@@ -59,22 +59,31 @@
       <name>Introduction</name>
       <t>
         Issues arising in the network, for instance violation of some SLAs, might be due to some configuration modification.
-        In the context of automated networks, the software needs not only to identify and revert the problematic configuration modification, but also to make sure that it won't happen again and that the fix will not disrupt other services.
+        In the context of automated networks, the software needs not only to identify and revert the problematic configuration modification,
+        but also to make sure that it won't happen again and that the fix will not disrupt other services.
         To cover the last two points, it is imperative to understand the cause of the problematic configuration change.
         Indeed, the first point, making sure that the configuration modification will not be repeated, cannot be ensured if the cause for pushing the modification in the first place is not known.
         Ensuring the second point, not disrupting other services, requires as well knowing if the configuration modification was pushed in order to support new services.
         Therefore, we need to be able to trace a configuration modification on a device back to the reason that triggered that modification, for instance in a NMS, whether the controller or the orchestrator.
       </t>
       <t>
+        In this document, we focus only on configuration pushed via NETCONF <xref target="RFC6241"/>.
+        The rationale for this choice is that NETCONF is better suited for normalization than other protocols (SNMP, CLI),
+        notably because the notion of transaction ID <xref target="I-D.lindblad-netconf-transaction-id"/> from RESTCONF <xref target="RFC8040"/> already exists to track configuration changes.
         The same network element, or NETCONF <xref target="RFC6241"/> server, can be configured by different NMSs or NETCONF clients.
         If an issue arises, one of the starting points for investigation is the configuration modification on the devices supporting the impacted service.
         In the best case, there is a dedicated user for each client and the timestamp of the modification allows tracing the problematic modification to its cause.
         In the worst case, everything is done by the same user and some more tricks must be done to trace the problematic modification to its source.
       </t>
       <t>
-        This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.  Practically, this mechanism annotates configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any, on the element that requested the configuration modification.
+        This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.
+        Practically, this mechanism annotates configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any,
+        on the element that requested the configuration modification.
         It reuses the concept of a NETCONF transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/> and augment it with an ID for the client.
-        The information needed to do the actual configuration tracing is stored in a new YANG module that maps a local configuration change to the corresponding northbound transaction, up to the controller or even the orchestrator. In case of a controller, the local configuration modification ID to both corresponding north- and southbound transaction ID. Additionally, for northbound transactions, we  store the ID of the client.
+        The information needed to do the actual configuration tracing is stored in a new YANG module that maps a local configuration change to the corresponding northbound transaction,
+        up to the controller or even the orchestrator.
+        In case of a controller, the local configuration modification ID to both corresponding north- and southbound transaction ID.
+        Additionally, for northbound transactions, we store the ID of the client.
       </t>
       <t> TODO announce plan</t>
     </section>
@@ -110,26 +119,33 @@
         <name>Use cases</name>
         <t>
           This document was written with autonomous networks in mind.
-          We assume that an existing system monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies , e.g. SLA violations, intent violations, network failure, or simply a customer issue.
+          We assume that an existing system monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies ,
+          e.g. SLA violations, intent violations, network failure, or simply a customer issue.
           Here are the use cases for the proposed YANG module.
         </t>
           <section anchor="configuration-mistakes">
             <name>Configuration Mistakes</name>
             <t>
-              Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS. In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS. Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification. Whether this/those service request(s) are actually the root cause needs to be investigated. However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
+              Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS.
+              In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS.
+              Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification.
+              Whether this/those service request(s) are actually the root cause needs to be investigated.
+              However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
             </t>
           </section>
           <section anchor="concurrent-nms-configuration">
             <name>Concurrent NMS Configuration</name>
             <t>
-              Building on the previous use case is the situation where two NMS', unaware of the each other, configuring routers, each believing that they are the only NMS for specific device. So one configuration executed by the NMS1 is overwritten by the NMS2, which in turn is overwritten by NMS1, etc.
+              Building on the previous use case is the situation where two NMS', unaware of the each other, configuring routers, each believing that they are the only NMS for specific device.
+              So one configuration executed by the NMS1 is overwritten by the NMS2, which in turn is overwritten by NMS1, etc.
             </t>
           </section>
           <section anchor="conflicting-intents">
             <name>Conflicting Intents</name>
             <t>
               Autonomous networks will be solved first by assuring intent per specific domain for example data center, core, cloud, etc.
-              This last use case is a more specific "Concurrent NMS configuration" use case where assuring domain intent breaks the entire end to end service, even if the domain-specific controllers are aware of each other. For example, ...
+              This last use case is a more specific "Concurrent NMS configuration" use case where assuring domain intent breaks the entire end to end service, even if the domain-specific controllers are aware of each other.
+              For example, ...
             </t>
           </section>
       </section>
