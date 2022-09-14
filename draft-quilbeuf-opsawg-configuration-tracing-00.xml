@@ -59,7 +59,7 @@
       <name>Introduction</name>
       <t>
         Issues arising in the network, for instance violation of some SLAs, might be due to some configuration modification.
-        In the context of automated networks, the software needs not only to identify and revert the problematic configuration modification,
+        In the context of automated networks, the assurance system needs not only to identify and revert the problematic configuration modification,
         but also to make sure that it won't happen again and that the fix will not disrupt other services.
         To cover the last two points, it is imperative to understand the cause of the problematic configuration change.
         Indeed, the first point, making sure that the configuration modification will not be repeated, cannot be ensured if the cause for pushing the modification in the first place is not known.
@@ -67,9 +67,11 @@
         Therefore, we need to be able to trace a configuration modification on a device back to the reason that triggered that modification, for instance in a NMS, whether the controller or the orchestrator.
       </t>
       <t>
-        In this document, we focus only on configuration pushed via NETCONF <xref target="RFC6241"/>.
+        This specification focuses only on configuration pushed via NETCONF <xref target="RFC6241"/>.
         The rationale for this choice is that NETCONF is better suited for normalization than other protocols (SNMP, CLI).
         Another reason is that the notion of transaction ID, useful to track configuration modification, is already defined in <xref target="I-D.lindblad-netconf-transaction-id"/> and comes from RESTCONF <xref target="RFC8040"/>.
+      </t>
+      <t>
         The same network element, or NETCONF <xref target="RFC6241"/> server, can be configured by different NMSs or NETCONF clients.
         If an issue arises, one of the starting points for investigation is the configuration modification on the devices supporting the impacted service.
         In the best case, there is a dedicated user for each client and the timestamp of the modification allows tracing the problematic modification to its cause.
@@ -85,7 +87,6 @@
         In case of a controller, the local configuration modification ID to both corresponding north- and southbound transaction ID.
         Additionally, for northbound transactions, we store the ID of the client.
       </t>
-      <t> TODO announce plan</t>
     </section>
     <section anchor="terminology">
       <name>Terminology</name>
@@ -102,55 +103,44 @@
       <t>
         This document uses the terms transaction and transaction id from <xref target="I-D.lindblad-netconf-transaction-id"/>.
       </t>
-      <t>
-        TODO: define or reuse existing definitions
-      </t>
-      <ul>
-        <li>orchestrator</li>
-        <li>controller</li>
-        <li>network equipment</li>
-        <li>commit (configuration), or equivalent</li>
-        <li>NMS</li>
-      </ul>
     </section>
+    <section anchor="use-cases">
+      <name>Use cases</name>
+      <t>
+        This document was written with autonomous networks in mind.
+        We assume that an existing monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies ,
+        e.g. SLA violations, intent violations, network failure, or simply a customer issue.
+        Here are the use cases for the proposed YANG module.
+      </t>
+        <section anchor="configuration-mistakes">
+          <name>Configuration Mistakes</name>
+          <t>
+            Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS.
+            In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS.
+            Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification.
+            Whether this/those service request(s) are actually the root cause needs to be investigated.
+            However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
+            </t>
+        </section>
+        <section anchor="concurrent-nms-configuration">
+          <name>Concurrent NMS Configuration</name>
+          <t>
+            Building on the previous use case is the situation where two NMS', unaware of the each other, configuring routers, each believing that they are the only NMS for specific device.
+            So one configuration executed by the NMS1 is overwritten by the NMS2, which in turn is overwritten by NMS1, etc.
+          </t>
+        </section>
+        <section anchor="conflicting-intents">
+          <name>Conflicting Intents</name>
+          <t>
+            Autonomous networks will be solved first by assuring intent per specific domain; for example data center, core, cloud, etc.
+            This last use case is a more specific "Concurrent NMS configuration" use case where assuring domain intent breaks the entire end to end service, even if the domain-specific controllers are aware of each other.
+          </t>
+        </section>
+      </section>
     <section anchor="transaction-id-tracing">
       <name>Relying on Transaction-id to Trace Configuration Modifications</name>
-      <section anchor="use-cases">
-        <name>Use cases</name>
-        <t>
-          This document was written with autonomous networks in mind.
-          We assume that an existing system monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies ,
-          e.g. SLA violations, intent violations, network failure, or simply a customer issue.
-          Here are the use cases for the proposed YANG module.
-        </t>
-          <section anchor="configuration-mistakes">
-            <name>Configuration Mistakes</name>
-            <t>
-              Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS.
-              In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS.
-              Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification.
-              Whether this/those service request(s) are actually the root cause needs to be investigated.
-              However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
-            </t>
-          </section>
-          <section anchor="concurrent-nms-configuration">
-            <name>Concurrent NMS Configuration</name>
-            <t>
-              Building on the previous use case is the situation where two NMS', unaware of the each other, configuring routers, each believing that they are the only NMS for specific device.
-              So one configuration executed by the NMS1 is overwritten by the NMS2, which in turn is overwritten by NMS1, etc.
-            </t>
-          </section>
-          <section anchor="conflicting-intents">
-            <name>Conflicting Intents</name>
-            <t>
-              Autonomous networks will be solved first by assuring intent per specific domain for example data center, core, cloud, etc.
-              This last use case is a more specific "Concurrent NMS configuration" use case where assuring domain intent breaks the entire end to end service, even if the domain-specific controllers are aware of each other.
-              For example, ...
-            </t>
-          </section>
-      </section>
       <section>
-        <name>Populating the YANG module</name>
+        <name>Instantiating the YANG module</name>
         <t>
           In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
           The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
@@ -202,7 +192,7 @@
             Northbound transaction:
             If the set-tx-id feature is available (see <xref target="set-tx-id"/>), the server MUST accept a transaction-ID and a client ID from client supporting configuration tracing.
             The server MUST store both entries as respectively northbound transaction ID and northbound client ID, associated to the local configuration ID.
-            If the set-tx-id feature is not available, the sever MUST accept the client ID, generate a transaction ID, save both the transaction ID as northbound transaction id and the client ID as northbound client ID, and send back the transaction ID to the client.
+            If the set-tx-id feature is not available, the server MUST accept the client ID, generate a transaction ID, save both the transaction ID as northbound transaction id and the client ID as northbound client ID, and send back the transaction ID to the client.
             If the client does not support configuration tracing, none of these entries are populated.
             In <xref target="hierarchical-configuration"/>, for the Controller, the northbound transaction ID is the ID of tx-1.
           </li>
@@ -229,7 +219,7 @@
         <name>Using the YANG module</name>
         <t>
           The YANG module defined below enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
-          To do so, the software doing the tracing should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
+          To do so, the Anomaly Detection System (ADS) should have for each NMS ID (as stored in northbound-client-id), access to some credentials enabling read access to the model.
           It should as well have access to the network equipment in which an issue is detected.
         </t>
         <figure anchor="configuration-tracing" >
@@ -263,15 +253,14 @@
         </t>
         <ol>
           <li>
-            The Anomaly Detection System (ADS) identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected.
+            The Anomaly Detection System identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected. The ADS queries the NE for the northbound transaction-id and northbound client id associated to the commit-id.
           </li>
           <li>
-            The ADS queries the NE for the northbound transaction-id and northbound client id associated to the commit-id from step 1.
-            In <xref target="configuration-tracing"/>, that step would query NE for a northbound transaction-id given the commit-id from step-1 and get the id of tx-2 and the id of the Controller as a result.
+            The ADS receives the northbound transaction Id. In <xref target="configuration-tracing"/>, that step would recieve the id of tx-2 and the id of the Controller as a result.
             If they are no results, or no associated northbound-transaction-id, the change was not done by a client compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            Otherwise, the ADS queries the client identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
+            The ADS queries the client identified by the northbound-client-id found at the previous step, looking for a match of the northbound-transaction-id from the previous step
             with a southbound-transaction-id in the client version of the YANG model.
             In <xref target="configuration-tracing"/>, for that step, the software would look for the id of tx-2 in the southbound transaction IDs stored in the Controller.
           </li>
@@ -463,9 +452,6 @@ module ietf-external-transaction-id {
       <name>Open Issues / TODO</name>
       <ul>
         <li>
-          TODO: missing definitions or link to definitions in terminology
-        </li>
-        <li>
           Evaluate risk of collision between transaction ids in the southbound-transaction id.
           Example scenario:
           &nbsp;&nbsp;1) client configures server 1 and server 2 for commit-id (client) 1
@@ -494,10 +480,10 @@ module ietf-external-transaction-id {
       <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6241.xml"/>
       <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
       <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8340.xml"/>
+      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"/>
     </references>
     <references title="Informative References">
       <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8040.xml"/>
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"/>
       <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-opsawg-service-assurance-architecture.xml"/>
     </references>
     <?rfc needLines="100"?>
