@@ -5,7 +5,9 @@
 OPSAWG                                                       J. Quilbeuf
 Internet-Draft                                                 B. Claise
 Intended status: Standards Track                                  Huawei
-Expires: 18 March 2023                                 14 September 2022
+Expires: 8 April 2023                                            T. Graf
+                                                                Swisscom
+                                                          5 October 2022
 
 
            External Transaction ID for Configuration Tracing
@@ -51,11 +53,9 @@ Status of This Memo
 
 
 
-
-
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 1]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 1]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
    Internet-Drafts are draft documents valid for a maximum of six months
@@ -63,7 +63,7 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 March 2023.
+   This Internet-Draft will expire on 8 April 2023.
 
 Copyright Notice
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 2]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 2]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
 1.  Introduction
@@ -165,9 +165,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 3]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 3]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
    to the controller or even the orchestrator.  In case of a controller,
@@ -221,9 +221,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 4]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 4]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
 3.2.  Concurrent NMS Configuration
@@ -277,9 +277,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 5]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 5]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
       Figure 1: Example of Hierarchical Configuration. tx: transaction
@@ -333,9 +333,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 6]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 6]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
       configuration, receive back the transaction ID from each server,
@@ -389,9 +389,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 7]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 7]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
                                                      +---------------+
@@ -445,9 +445,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 8]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 8]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
    3.  The ADS queries the client identified by the northbound-client-id
@@ -501,9 +501,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                 [Page 9]
+Quilbeuf, et al.          Expires 8 April 2023                  [Page 9]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
    module: ietf-external-transaction-id
@@ -557,9 +557,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                [Page 10]
+Quilbeuf, et al.          Expires 8 April 2023                 [Page 10]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
      import ietf-netconf-txid {
@@ -613,9 +613,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                [Page 11]
+Quilbeuf, et al.          Expires 8 April 2023                 [Page 11]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
      }
@@ -669,9 +669,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                [Page 12]
+Quilbeuf, et al.          Expires 8 April 2023                 [Page 12]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
      }
@@ -725,9 +725,9 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                [Page 13]
+Quilbeuf, et al.          Expires 8 April 2023                 [Page 13]
 
-Internet-Draft       Configuration Tracing via tx-id      September 2022
+Internet-Draft       Configuration Tracing via tx-id        October 2022
 
 
    [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
@@ -746,12 +746,12 @@ Internet-Draft       Configuration Tracing via tx-id      September 2022
 11.  Informative References
 
    [I-D.ietf-opsawg-service-assurance-architecture]
-              Claise, B., Quilbeuf, J., Lopez, D. R., Voyer, D., and T.
+              Claise, B., Quilbeuf, J., Lopez, D., Voyer, D., and T.
               Arumugam, "Service Assurance for Intent-based Networking
               Architecture", Work in Progress, Internet-Draft, draft-
-              ietf-opsawg-service-assurance-architecture-08, 11 August
-              2022, <https://www.ietf.org/archive/id/draft-ietf-opsawg-
-              service-assurance-architecture-08.txt>.
+              ietf-opsawg-service-assurance-architecture-09, 26
+              September 2022, <https://www.ietf.org/archive/id/draft-
+              ietf-opsawg-service-assurance-architecture-09.txt>.
 
    [RFC8040]  Bierman, A., Bjorklund, M., and K. Watsen, "RESTCONF
               Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
@@ -781,4 +781,60 @@ Authors' Addresses
 
 
 
-Quilbeuf & Claise         Expires 18 March 2023                [Page 14]
+Quilbeuf, et al.          Expires 8 April 2023                 [Page 14]
+
+Internet-Draft       Configuration Tracing via tx-id        October 2022
+
+
+   Thomas Graf
+   Swisscom
+   Binzring 17
+   CH-8045 Zurich
+   Switzerland
+
+   Email: thomas.graf@swisscom.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf, et al.          Expires 8 April 2023                 [Page 15]

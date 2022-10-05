@@ -34,7 +34,19 @@
         <email>benoit.claise@huawei.com</email>
       </address>
     </author>
-    <date year="2022" month="9" day="14"/>
+    <author surname="Graf" initials="T" fullname="Thomas Graf">
+      <organization>Swisscom</organization>
+      <address>
+        <postal>
+          <street>Binzring 17</street>
+          <city>Zurich</city>
+          <code>8045</code>
+          <country>Switzerland</country>
+        </postal>
+        <email>thomas.graf@swisscom.com</email>
+      </address>
+    </author>
+    <date year="2022" month="10" day="5"/>
     <area>General</area>
     <workgroup>OPSAWG</workgroup>
     <abstract>
