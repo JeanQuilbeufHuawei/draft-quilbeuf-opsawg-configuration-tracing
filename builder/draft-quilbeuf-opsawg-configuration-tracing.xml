@@ -46,6 +46,17 @@
         <email>thomas.graf@swisscom.com</email>
       </address>
     </author>
+     <author fullname="Diego R. Lopez" initials="D" surname="Lopez ">
+      <organization>Telefonica I+D</organization>
+      <address>
+        <postal>
+          <street>Don Ramon de la Cruz, 82</street>
+          <city>Madrid  28006</city>
+          <country>Spain</country>
+        </postal>
+        <email>diego.r.lopez@telefonica.com</email>
+      </address>
+    </author>
     <date year="{{year}}" month="{{month}}" day="{{day}}"/>
     <area>General</area>
     <workgroup>OPSAWG</workgroup>
