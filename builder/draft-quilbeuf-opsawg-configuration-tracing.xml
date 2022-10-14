@@ -46,7 +46,7 @@
         <email>thomas.graf@swisscom.com</email>
       </address>
     </author>
-     <author fullname="Diego R. Lopez" initials="D" surname="Lopez ">
+    <author fullname="Diego R. Lopez" initials="D" surname="Lopez ">
       <organization>Telefonica I+D</organization>
       <address>
         <postal>
@@ -55,6 +55,12 @@
           <country>Spain</country>
         </postal>
         <email>diego.r.lopez@telefonica.com</email>
+      </address>
+    </author>
+    <author fullname="Qiong Sun" initials="Q" surname="Sun">
+      <organization>China Telecom</organization>
+      <address>
+        <email>sunqiong@chinatelecom.cn</email>
       </address>
     </author>
     <date year="{{year}}" month="{{month}}" day="{{day}}"/>

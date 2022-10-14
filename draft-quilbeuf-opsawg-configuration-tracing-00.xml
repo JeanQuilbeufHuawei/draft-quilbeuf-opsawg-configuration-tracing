@@ -46,7 +46,7 @@
         <email>thomas.graf@swisscom.com</email>
       </address>
     </author>
-     <author fullname="Diego R. Lopez" initials="D" surname="Lopez ">
+    <author fullname="Diego R. Lopez" initials="D" surname="Lopez ">
       <organization>Telefonica I+D</organization>
       <address>
         <postal>
@@ -57,7 +57,13 @@
         <email>diego.r.lopez@telefonica.com</email>
       </address>
     </author>
-    <date year="2022" month="10" day="13"/>
+    <author fullname="Qiong Sun" initials="Q" surname="Sun">
+      <organization>China Telecom</organization>
+      <address>
+        <email>sunqiong@chinatelecom.cn</email>
+      </address>
+    </author>
+    <date year="2022" month="10" day="14"/>
     <area>General</area>
     <workgroup>OPSAWG</workgroup>
     <abstract>
