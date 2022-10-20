@@ -63,7 +63,7 @@
         <email>sunqiong@chinatelecom.cn</email>
       </address>
     </author>
-    <date year="2022" month="10" day="14"/>
+    <date year="2022" month="10" day="20"/>
     <area>General</area>
     <workgroup>OPSAWG</workgroup>
     <abstract>
@@ -80,7 +80,7 @@
     <note removeInRFC="true">
       <name>Discussion Venues</name>
       <t>Source for this draft and an issue tracker can be found at
-       <eref target="https://github.com/JeanQuilbeufHuawei/draft-collected-data-manifest"/>.</t>
+       <eref target="https://github.com/JeanQuilbeufHuawei/draft-quilbeuf-opsawg-configuration-tracing"/>.</t>
     </note>
   </front>
   <middle>

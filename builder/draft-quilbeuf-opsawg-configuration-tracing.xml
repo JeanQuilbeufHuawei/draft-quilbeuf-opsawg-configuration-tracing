@@ -80,7 +80,7 @@
     <note removeInRFC="true">
       <name>Discussion Venues</name>
       <t>Source for this draft and an issue tracker can be found at
-       <eref target="https://github.com/JeanQuilbeufHuawei/draft-collected-data-manifest"/>.</t>
+       <eref target="https://github.com/JeanQuilbeufHuawei/draft-quilbeuf-opsawg-configuration-tracing"/>.</t>
     </note>
   </front>
   <middle>
