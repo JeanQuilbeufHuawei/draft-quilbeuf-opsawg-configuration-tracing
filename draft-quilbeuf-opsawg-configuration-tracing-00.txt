@@ -15,6 +15,7 @@ Expires: 23 April 2023                                           T. Graf
 
 
            External Transaction ID for Configuration Tracing
+             draft-quilbeuf-opsawg-configuration-tracing-00
 
 Abstract
 
@@ -49,7 +50,6 @@ Status of This Memo
 
    This Internet-Draft is submitted in full conformance with the
    provisions of BCP 78 and BCP 79.
-
 
 
 
