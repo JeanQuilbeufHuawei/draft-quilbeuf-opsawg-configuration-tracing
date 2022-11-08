@@ -26,12 +26,14 @@ module ietf-external-transaction-id {
      Author:   Jean Quilbeuf  <mailto:jean.quilbeuf@huawei.com>";
   description
     "This module enables tracing of configuration changes in a
-     network for the sake of automated correlation between configuration
-     changes and the external request that triggered that change. 
+     network for the sake of automated correlation between
+     configuration changes and the external request that triggered
+     that change.
      
      The module stores the identifier of the parent transaction
-     that triggered the change in a device, and the child transaction ID
-     when the local device originates in its turn a transaction.
+     that triggered the change in a device, and the child
+     transaction ID when the local device originates in its turn a
+     transaction.
 
      Copyright (c) 2022 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
@@ -65,25 +67,25 @@ module ietf-external-transaction-id {
       leaf local-commit-id {
         type string;
         description
-          "Stores the identifier as saved by the server. Can be used to retrieve
-           the corresponding changes using the server mechanism
-           if available.";
+          "Stores the identifier as saved by the server. Can be used
+           to retrieve the corresponding changes using the server
+           mechanism if available.";
       }
       leaf timestamp {
         type yang:date-and-time;
         description
-          "A timestamp that can be used to further filter change events.";
+          "A timestamp that can be used to further filter change
+          events.";
       }
       leaf parent-transaction-id {
         type ietf-netconf-txid:etag-t;
         description
           "External transaction ID, sent by the client, corresponding
-           to a change initiated by an external entity (e.g., controller, 
-           orchestrator). There should be
-           a corresponding entry on that external entity as a
-           child-transaction-id that maps to the actual
-           configuration commit that triggered the configuration of
-           this server.
+           to a change initiated by an external entity (e.g.,
+           controller, orchestrator). There should be a corresponding
+           entry on that external entity as a child-transaction-id
+           that maps to the actual configuration commit that
+           triggered the configuration of this server.
 
            This data node is present only when the configuration was
            pushed by a compatible system.";
@@ -91,8 +93,9 @@ module ietf-external-transaction-id {
       leaf parent-client-id {
         type string;
         description
-          "ID of the client that originated the modification, to further query
-           information about the corresponding change.";
+          "ID of the client that originated the modification, to
+          further query information about the corresponding
+          change.";
       }
       leaf-list child-transaction-id {
         type ietf-netconf-txid:etag-t;
