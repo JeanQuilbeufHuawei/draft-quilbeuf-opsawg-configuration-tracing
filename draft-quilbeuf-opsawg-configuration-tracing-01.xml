@@ -182,6 +182,17 @@
     <section anchor="transaction-id-tracing">
       <name>Relying on Transaction-id to Trace Configuration Modifications</name>
       <section>
+        <name>Existing configuration metadata on device</name>
+        <t>
+          This draft assumes that NETCONF clients or servers (orchestrators, controllers, devices, ...) have some kind of mechanism to record the modifications done to the configuration.
+          For instance, routers typically have an history of configuration change and this configuration associates a locally unique identifier to some metadata, such as the timestamp of the modification, the user doing the modification or the protocol used for the modification.
+        </t>
+          <t>
+            Since there is no standard for storing this configuration id, we assume that a "local-commit-id" exists on the platorm.
+            This local-commit-id is the link between the module presented in this draft and the device-specific way of storing configuration changes.
+          </t>
+      </section>
+      <section>
         <name>Instantiating the YANG module</name>
         <t>
           In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
@@ -535,8 +546,13 @@ module ietf-external-transaction-id {
     <?rfc needLines="100"?>
     <section>
       <name>Changes between revisions</name>
-      <t> Initial version
+      <t>
+        00 -> 01
       </t>
+      <ul>
+        <li> Context for the "local-commit-id" concept</li>
+        <li> Feedback from Med, both in text and YANG module</li>
+      </ul>
     </section>
     <section anchor="usage">
       <name>Tracing configuration changes</name>
@@ -544,6 +560,7 @@ module ietf-external-transaction-id {
     <section numbered="false">
       <name>Acknowledgements</name>
         <t>
+           The authors would like to thank Mohamed Boucadair for his reviews and propositions.
         </t>
     </section>
   </back>
