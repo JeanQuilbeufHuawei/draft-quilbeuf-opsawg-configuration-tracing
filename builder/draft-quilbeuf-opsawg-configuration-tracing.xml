@@ -208,10 +208,18 @@
       <section>
         <name>Existing configuration metadata on device</name>
         <t>
-          This draft assumes that NETCONF clients or servers (orchestrators, controllers, devices, ...) have some kind of mechanism to record the modifications done to the configuration.
+          This document assumes that NETCONF clients or servers (orchestrators, controllers, devices, ...) have some kind of mechanism to record the modifications done to the configuration.
           For instance, routers typically have an history of configuration change and this configuration associates a locally unique identifier to some metadata, such as the timestamp of the modification, the user doing the modification or the protocol used for the modification.
           Such a locally unique identifier is a Local Commit ID, we assume that it exists on the platform.
           This Local Commit ID is the link between the module presented in this draft and the device-specific way of storing configuration changes.
+        </t>
+      </section>
+      <section>
+        <name>Client ID</name>
+        <t>
+            This document assumes that each NETCONF client for which configuration must be traced (for instance orchestrator and controllers) has a unique client ID among the other NETCONF clients in the network.
+            Such an ID could be an IP address or a host name.
+            The mechanism for providing and defining this client ID is out of scope of the current document.
         </t>
       </section>
       <section>
@@ -328,7 +336,7 @@
         </t>
         <ol>
           <li>
-            The Anomaly Detection System identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected. The ADS queries the NE for the parent transaction-id and parent client id associated to the commit-id.
+            The Anomaly Detection System (ADS) identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected. The ADS queries the NE for the parent transaction-id and parent client id associated to the commit-id.
           </li>
           <li>
             The ADS receives the parent transaction Id. In <xref target="configuration-tracing"/>, that step would recieve the id of tx-2 and the id of the Controller as a result.
@@ -462,6 +470,7 @@
         00 -> 01
       </t>
       <ul>
+        <li> Define parent and child transaction</li>
         <li> Context for the "local-commit-id" concept</li>
         <li> Feedback from Med, both in text and YANG module</li>
       </ul>

@@ -60,7 +60,7 @@ module ietf-external-transaction-id {
       "Contains the IDs of configuration transactions that are
        external to the device.";
     list configuration-change {
-      key "local-commit-id timestamp";
+      key "local-commit-id";
       description
         "List of configuration changes, identified by their
          local-commit-id";
