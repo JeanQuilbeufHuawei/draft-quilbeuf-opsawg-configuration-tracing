@@ -96,16 +96,16 @@ Table of Contents
    3.  Use cases . . . . . . . . . . . . . . . . . . . . . . . . . .   5
      3.1.  Configuration Mistakes  . . . . . . . . . . . . . . . . .   5
      3.2.  Concurrent NMS Configuration  . . . . . . . . . . . . . .   5
-     3.3.  Conflicting Intents . . . . . . . . . . . . . . . . . . .   5
+     3.3.  Conflicting Intents . . . . . . . . . . . . . . . . . . .   6
      3.4.  Not a use case: Onboarding  . . . . . . . . . . . . . . .   6
-   4.  Relying on Transaction-id to Trace Configuration
+   4.  Relying on Transaction ID to Trace Configuration
            Modifications . . . . . . . . . . . . . . . . . . . . . .   6
      4.1.  Existing configuration metadata on device . . . . . . . .   6
      4.2.  Client ID . . . . . . . . . . . . . . . . . . . . . . . .   6
-     4.3.  Instantiating the YANG module . . . . . . . . . . . . . .   6
-     4.4.  Using the YANG module . . . . . . . . . . . . . . . . . .   8
+     4.3.  Instantiating the YANG module . . . . . . . . . . . . . .   7
+     4.4.  Using the YANG module . . . . . . . . . . . . . . . . . .   9
    5.  YANG module . . . . . . . . . . . . . . . . . . . . . . . . .  10
-     5.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  10
+     5.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  11
 
 
 
@@ -121,12 +121,12 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    9.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  14
      9.1.  Possibility of setting the transaction Id from the
            client  . . . . . . . . . . . . . . . . . . . . . . . . .  14
-   10. Normative References  . . . . . . . . . . . . . . . . . . . .  14
+   10. Normative References  . . . . . . . . . . . . . . . . . . . .  15
    11. Informative References  . . . . . . . . . . . . . . . . . . .  15
    Appendix A.  Changes between revisions  . . . . . . . . . . . . .  15
-   Appendix B.  Tracing configuration changes  . . . . . . . . . . .  15
-   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  15
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  15
+   Appendix B.  Tracing configuration changes  . . . . . . . . . . .  16
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  16
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  16
 
 1.  Introduction
 
@@ -209,7 +209,7 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
 
    This document uses the terms client and server from [RFC6241].
 
-   This document uses the terms transaction and transaction id from
+   This document uses the terms transaction and Transaction ID from
    [I-D.lindblad-netconf-transaction-id].
 
    Local Commit ID  Identifier of a local configuration change on a
@@ -231,6 +231,9 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
 
    Child Transaction  For a given NETCONF client, a transaction that
       required configuration changes to at least one server.
+
+   Client ID  ID of a NETCONF client, must be unique among all NETCONF
+      clients that configure the network.
 
 3.  Use cases
 
@@ -266,6 +269,19 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    configuration executed by the NMS1 is overwritten by the NMS2, which
    in turn is overwritten by NMS1, etc.
 
+
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023               [Page 5]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
+
 3.3.  Conflicting Intents
 
    Autonomous networks will be solved first by assuring intent per
@@ -275,13 +291,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    service, even if the domain-specific controllers are aware of each
    other.
 
-
-
-Quilbeuf, et al.        Expires 14 September 2023               [Page 5]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
-
 3.4.  Not a use case: Onboarding
 
    During onboarding, a newly added device is likely to receive a
@@ -290,7 +299,7 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    configuration is done, i.e. when the "stable" configuration is
    modified.
 
-4.  Relying on Transaction-id to Trace Configuration Modifications
+4.  Relying on Transaction ID to Trace Configuration Modifications
 
 4.1.  Existing configuration metadata on device
 
@@ -315,6 +324,20 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    The mechanism for providing and defining this client ID is out of
    scope of the current document.
 
+
+
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023               [Page 6]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
+
 4.3.  Instantiating the YANG module
 
    In [I-D.lindblad-netconf-transaction-id], the concept of a NETCONF
@@ -328,15 +351,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    configuration or to so-called versioned nodes.  In the latter case,
    only versioned nodes for which the transaction ID differs need to be
    updated.
-
-
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023               [Page 6]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
 
                             +---------------+
                             | Orchestrator  |
@@ -355,37 +369,23 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
 
       Figure 1: Example of Hierarchical Configuration. tx: transaction
 
-   A server considers as a parent transaction a transaction that
-   modifies its configuration.  On Figure 1, tx-1 is a parent
-   transaction for the Controller.
+   A server considers as a Parent Transaction a transaction that
+   modifies its configuration.  On Figure 1, tx-1 is a Parent
+   Transaction for the Controller.
 
-   A client considers as a child transaction the modification of a
-   server configuration.  On Figure 1, tx-2 and tx-3 are child
-   transactions for the Controller.
+   A client considers as a Child Transaction the modification of a
+   server configuration.  On Figure 1, tx-2 and tx-3 are Child
+   Transactions for the Controller.
 
    If the set-tx-id feature is enabled (see open issue in Section 9.1),
    the client can specify its own transaction ID when sending the
    configuration ID for the server.  In that case, the Controller in
    Figure 1 could use the same transaction-id for both tx-2 and tx-3 and
-   save a single child transaction ID for that commit.  Otherwise, the
+   save a single Child Transaction ID for that commit.  Otherwise, the
    server is the one generating the ID for the transaction between the
    client and the server.  If the client has to configure several
    servers, for instance to enable a network service, then each of the
    configured servers might return a different ID.  Therefore, for a
-   configuration modification on the client might be implemented via
-   several child transactions and thus might have several child
-   transaction ID.
-
-   Our proposed solution is to store, on the server, a mapping between
-   the existing local commit id and the parent and child transactions
-   related to that local configuration change.  The mapping is read only
-   and populated by the server at configuration time as follows:
-
-   *  Parent transaction: If the set-tx-id feature is available (see
-      Section 9.1), the server MUST accept a transaction-ID and a client
-      ID from client supporting configuration tracing.  The server MUST
-      store both entries as respectively parent transaction ID and
-      client ID, associated to the local configuration ID.  If the set-
 
 
 
@@ -394,30 +394,44 @@ Quilbeuf, et al.        Expires 14 September 2023               [Page 7]
 Internet-Draft       Configuration Tracing via tx-id          March 2023
 
 
+   configuration modification on the client might be implemented via
+   several Child Transactions and thus might have several Child
+   Transaction IDs.
+
+   Our proposed solution is to store, on the server, a mapping between
+   the existing local commit id and the Parent and Child Transactions
+   related to that local configuration change.  The mapping is read only
+   and populated by the server at configuration time as follows:
+
+   *  Parent Transaction: If the set-tx-id feature is available (see
+      Section 9.1), the server MUST accept a transaction-ID and a client
+      ID from client supporting configuration tracing.  The server MUST
+      store both entries as respectively Parent Transaction ID and
+      Client ID, associated to the local configuration ID.  If the set-
       tx-id feature is not available, the server MUST accept the client
       ID, generate a transaction ID, save both the transaction ID as
-      parent transaction id and the client ID as client ID, and send
+      Parent Transaction ID and the Client ID as Client ID, and send
       back the transaction ID to the client.  If the client does not
       support configuration tracing, none of these entries are
-      populated.  In Figure 1, for the Controller, the parent
-      transaction ID is the ID of tx-1.
+      populated.  In Figure 1, for the Controller, the Parent
+      Transaction ID is the ID of tx-1.
 
-   *  Child transaction: If the set-tx-id feature is available (see
+   *  Child Transaction: If the set-tx-id feature is available (see
       Section 9.1), when a client has to configure servers in response
       to a local configuration change, then it MUST generate a
-      transaction ID, send it along with its ID to the configured
-      servers, and save it as a child transaction ID.  If the set-tx-id
+      Transaction ID, send it along with its ID to the configured
+      servers, and save it as a Child Transaction ID.  If the set-tx-id
       feature is not available, it MUST sent its own ID with the
       configuration, receive back the transaction ID from each server,
-      and save all of them as child transaction ID.  In Figure 1, for
-      the Controller, the child transaction IDs are the IDs of tx-2 and
+      and save all of them as Child Transaction ID.  In Figure 1, for
+      the Controller, the Child Transaction IDs are the IDs of tx-2 and
       tx-3.
 
    The two cases above are not mutually exclusive.  A Controller can be
    configured by an Orchestrator and configure network equipment in
-   turn, as shown in Figure 1.  In that case, both the parent
-   transaction ID, shared with the Orchestrator and the child
-   transaction IDs, shared with the network equipments, are stored in
+   turn, as shown in Figure 1.  In that case, both the Parent
+   Transaction ID, shared with the Orchestrator and the Child
+   Transaction IDs, shared with the network equipments, are stored in
    the Controller.  They are both associated to the corresponding
    configuration commit in the Controller.
 
@@ -426,12 +440,20 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    the changes to the running configuration datastore.  From the running
    configuration datastore perspective, which is the effective one,
    there is a single modification, but caused by several clients, which
-   means that this modification should have several parent transaction
-   id.  Although, this case is technically possible, it is a bad
+   means that this modification should have several Parent Transaction
+   ID.  Although, this case is technically possible, it is a bad
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023               [Page 8]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
+
    practice.  We won’t cover it in this document.  In other terms, we
    assume that a given configuration modification on a server is caused
-   by a single parent transaction, and thus has a single corresponding
-   parent transaction ID.
+   by a single Parent Transaction, and thus has a single corresponding
+   Parent Transaction ID.
 
 4.4.  Using the YANG module
 
@@ -442,13 +464,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    some credentials enabling read access to the model.  It should as
    well have access to the network equipment in which an issue is
    detected.
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023               [Page 8]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
 
                                                      +---------------+
         .----------------[5]match C tx-1------------>|               |
@@ -479,24 +494,9 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    Network Equipment back to a service request are illustrated in
    Figure 2.  They are detailed below.
 
-   1.  The Anomaly Detection System (ADS) identifies the commit id that
-       created an issue, for instance by looking for the last commit-id
-       occuring before the issue was detected.  The ADS queries the NE
-       for the parent transaction-id and client id associated to the
-       commit-id.
 
-   2.  The ADS receives the parent transaction Id.  In Figure 2, that
-       step would recieve the id of tx-2 and the id of the Controller as
-       a result.  If they are no results, or no associated parent-
-       transaction-id, the change was not done by a client compatible
-       with the present draft, and the investigation stops here.
 
-   3.  The ADS queries the client identified by the client-id found at
-       the previous step, looking for a match of the parent-transaction-
-       id from the previous step with a child-transaction-id in the
-       client version of the YANG model.  In Figure 2, for that step,
-       the software would look for the id of tx-2 in the child
-       transaction IDs stored in the Controller.
+
 
 
 
@@ -506,31 +506,61 @@ Quilbeuf, et al.        Expires 14 September 2023               [Page 9]
 Internet-Draft       Configuration Tracing via tx-id          March 2023
 
 
+   1.  The Anomaly Detection System (ADS) identifies the commit id that
+       created an issue, for instance by looking for the last commit-id
+       occuring before the issue was detected.  The ADS queries the NE
+       for the Parent Transaction ID and client id associated to the
+       commit-id.
+
+   2.  The ADS receives the Parent Transaction ID.  In Figure 2, that
+       step would recieve the id of tx-2 and the id of the Controller as
+       a result.  If they are no results, or no associated Parent
+       Transaction ID, the change was not done by a client compatible
+       with the present draft, and the investigation stops here.
+
+   3.  The ADS queries the client identified by the client-id found at
+       the previous step, looking for a match of the Parent Transaction
+       ID from the previous step with a Child Transaction ID in the
+       client version of the YANG model.  In Figure 2, for that step,
+       the software would look for the id of tx-2 in the Child
+       Transaction IDs stored in the Controller.
+
    4.  From that query, the ADS knows the local-commit-id on the client
        (Controller in our case).  Since the local-commit-id is
-       associated to a parent-transaction-id, namely the id of tx-1, the
+       associated to a Parent Transaction ID, namely the id of tx-1, the
        ADS continues the investigation.  The client to query is
        identified by the client-id, in our case the Orchestrator.
 
    5.  The ADS queries the Orchestrator, trying to find a match for the
-       Id of tx-1 as a child transaction ID.
+       Id of tx-1 as a Child Transaction ID.
 
    6.  Finally, the ADS receives the commit-id from the Orchestrator
        that ultimately caused the issue in the NE.  Since there is no
-       associated parent transaction id, the investigation stops here.
+       associated Parent Transaction ID, the investigation stops here.
        The modification associated to the commit-id, for instance a
        service request, is now available for further manual or automated
        analysis, such as analyzing the root cause of the issue.
 
    Note that step 5 and 6 are actually a repetition of step 3 and 4.
    The general algorithm is to continue looking for a client until no
-   more client (no more parent-transaction-id) can be found in the
+   more client (no more Parent Transaction ID) can be found in the
    current element.
 
 5.  YANG module
 
    We present in this section the YANG module for modelling the
    information about the configuration modifications.
+
+
+
+
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023              [Page 10]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
 
 5.1.  Overview
 
@@ -554,24 +584,16 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    changes.  It can be used to retrieve the local configuration changes
    that happened during that transaction.
 
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023              [Page 10]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
-
-   The parent-transaction-id should be present when the server is
+   The Parent Transaction ID should be present when the server is
    configured by a client supporting the external transaction ID.  In
    that case, the client-id is mandatory.  The value of both fields are
    sent by the client whenever it sends the configuration that trigger
    the changes associated to the local-commit-id.
 
-   The child-transaction-id should be present when the current
+   The Child Transaction ID should be present when the current
    configuration change leads to the configuration of other devices.  In
-   that case, the child-transaction-id should be generated by the server
-   (and unique among other child-transaction-id fields generated on this
+   that case, the Child Transaction ID should be generated by the server
+   (and unique among other Child Transaction ID fields generated on this
    server), sent to the configured devices and saved in that field.  If
    the configured server do not support having a forced transaction id,
    then the transaction IDs resulting of the configuration of the
@@ -584,9 +606,17 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    identified via a label.  As such cases are difficult to standardize,
    we won’t cover them in this document.  However, our model could be
    extended to support such mechanism for instance by using a
-   configuration label instead of the parent transaction ID.
+   configuration label instead of the Parent Transaction ID.
 
 5.2.  YANG module ietf-external-transaction-id
+
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023              [Page 11]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
 
    <CODE BEGINS> file "ietf-external-transaction-id@2021-11-03.yang"
    module ietf-external-transaction-id {
@@ -610,14 +640,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
      organization
        "IETF OPSAWG Working Group";
      contact
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023              [Page 11]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
-
        "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
         WG List:  <mailto:opsawg@ietf.org>
         Author:   Benoit Claise  <mailto:benoit.claise@huawei.com>
@@ -645,6 +667,13 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
         This version of this YANG module is part of RFC XXXX; see the
         RFC itself for full legal notices.  ";
 
+
+
+Quilbeuf, et al.        Expires 14 September 2023              [Page 12]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
+
      revision 2022-10-20 {
        description
          "Initial revision";
@@ -666,14 +695,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
            type string;
            description
              "Stores the identifier as saved by the server. Can be used
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023              [Page 12]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
-
               to retrieve the corresponding changes using the server
               mechanism if available.";
          }
@@ -701,6 +722,14 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
            type string;
            mandatory true;
            description
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023              [Page 13]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
+
              "ID of the client that originated the modification, to
               further query information about the corresponding
               change.";
@@ -717,19 +746,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    }
    <CODE ENDS>
 
-
-
-
-
-
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023              [Page 13]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
-
 6.  Security Considerations
 
 7.  IANA Considerations
@@ -740,13 +756,13 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
 
 9.  Open Issues / TODO
 
-   *  Evaluate risk of collision between transaction ids in the child-
-      transaction id.  Example scenario:   1) client configures server 1
-      and server 2 for commit-id (client) 1 the child transaction IDs
+   *  Evaluate risk of collision between transaction ids in the Child
+      Transaction ID.  Example scenario:   1) client configures server 1
+      and server 2 for commit-id (client) 1 the Child Transaction IDs
       are A (server 1) B (server 2)   2) client configures server 1 and
-      server 2 for commit-id (client) 2 the child transaction IDs are B
+      server 2 for commit-id (client) 2 the Child Transaction IDs are B
       (server 1) C (server 2)   3) the last configuration of server 1
-      causes an issue, when looking for child transaction id B, it's not
+      causes an issue, when looking for Child Transaction id B, it's not
       clear whether the issue comes from commit 1 or commit 2 in the
       client
 
@@ -763,6 +779,13 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    present two versions, one with the feature set-tx-id available and
    one without.
 
+
+
+Quilbeuf, et al.        Expires 14 September 2023              [Page 14]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
+
 10.  Normative References
 
    [I-D.lindblad-netconf-transaction-id]
@@ -776,15 +799,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
-
-
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023              [Page 14]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
 
    [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
               and A. Bierman, Ed., "Network Configuration Protocol
@@ -817,9 +831,16 @@ Appendix A.  Changes between revisions
 
    00 -> 01
 
-   *  Define parent and child transaction
+   *  Define Parent and Child Transaction
 
    *  Context for the "local-commit-id" concept
+
+
+
+Quilbeuf, et al.        Expires 14 September 2023              [Page 15]
+
+Internet-Draft       Configuration Tracing via tx-id          March 2023
+
 
    *  Feedback from Med, both in text and YANG module
 
@@ -834,14 +855,6 @@ Authors' Addresses
 
    Jean Quilbeuf
    Huawei
-
-
-
-Quilbeuf, et al.        Expires 14 September 2023              [Page 15]
-
-Internet-Draft       Configuration Tracing via tx-id          March 2023
-
-
    Email: jean.quilbeuf@huawei.com
 
 
@@ -869,19 +882,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    Qiong Sun
    China Telecom
    Email: sunqiong@chinatelecom.cn
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
