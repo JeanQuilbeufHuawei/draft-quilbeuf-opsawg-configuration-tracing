@@ -385,7 +385,7 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
       Section 9.1), the server MUST accept a transaction-ID and a client
       ID from client supporting configuration tracing.  The server MUST
       store both entries as respectively parent transaction ID and
-      parent client ID, associated to the local configuration ID.  If
+      client ID, associated to the local configuration ID.  If the set-
 
 
 
@@ -394,11 +394,11 @@ Quilbeuf, et al.        Expires 14 September 2023               [Page 7]
 Internet-Draft       Configuration Tracing via tx-id          March 2023
 
 
-      the set-tx-id feature is not available, the server MUST accept the
-      client ID, generate a transaction ID, save both the transaction ID
-      as parent transaction id and the client ID as parent client ID,
-      and send back the transaction ID to the client.  If the client
-      does not support configuration tracing, none of these entries are
+      tx-id feature is not available, the server MUST accept the client
+      ID, generate a transaction ID, save both the transaction ID as
+      parent transaction id and the client ID as client ID, and send
+      back the transaction ID to the client.  If the client does not
+      support configuration tracing, none of these entries are
       populated.  In Figure 1, for the Controller, the parent
       transaction ID is the ID of tx-1.
 
@@ -482,8 +482,8 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    1.  The Anomaly Detection System (ADS) identifies the commit id that
        created an issue, for instance by looking for the last commit-id
        occuring before the issue was detected.  The ADS queries the NE
-       for the parent transaction-id and parent client id associated to
-       the commit-id.
+       for the parent transaction-id and client id associated to the
+       commit-id.
 
    2.  The ADS receives the parent transaction Id.  In Figure 2, that
        step would recieve the id of tx-2 and the id of the Controller as
