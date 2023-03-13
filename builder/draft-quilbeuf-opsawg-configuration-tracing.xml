@@ -116,17 +116,17 @@
         The same network element, or NETCONF <xref target="RFC6241"/> server, can be configured by different NMSs or NETCONF clients.
         If an issue arises, one of the starting points for investigation is the configuration modification on the devices supporting the impacted service.
         In the best case, there is a dedicated user for each client and the timestamp of the modification allows tracing the problematic modification to its cause.
-        In the worst case, everything is done by the same user and some more tricks must be done to trace the problematic modification to its source.
+        In the worst case, everything is done by the same user and some more correlations must be done to trace the problematic modification to its source.
       </t>
       <t>
         This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.
         Practically, this mechanism annotates configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any,
         on the element that requested the configuration modification.
-        It reuses the concept of a NETCONF transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/> and augment it with an ID for the client.
-        The information needed to do the actual configuration tracing is stored in a new YANG module that maps a local configuration change to the corresponding parent transaction,
-        up to the controller or even the orchestrator.
-        In case of a controller, the local configuration modification ID to both corresponding parent and child transaction ID.
-        Additionally, for parent transactions, we store the ID of the client.
+        It reuses the concept of a NETCONF transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/> and additionally requires an ID for the client.
+        The information needed to trace the configuration is stored in a new YANG module that maps a local configuration change to some additional metadata.
+        In the server, this metadata includes the ID of the client triggering the configuration change as well as the transaction ID corresponding to that change in the client.
+        In the client, the metadata includes the transaction ID for each server configured during the local configuration change.
+        In case of a controller, which plays both the role of server (for an orchestrator) and client (for a network equipment), the metadata associated to both the server-side and the client-side of the translation are stored.
       </t>
     </section>
     <section anchor="terminology">
@@ -144,6 +144,21 @@
       <t>
         This document uses the terms transaction and transaction id from <xref target="I-D.lindblad-netconf-transaction-id"/>.
       </t>
+      <dl>
+        <dt>Local Commit ID</dt>
+        <dd>
+          Identifier of a local configuration change on a Network Equipment, Controller, Orchestrator or any other device or software handling configuration.
+          Such an identifier is usually present in devices that can show an history of the configuration changes, to identify one such configuration change.
+        </dd>
+        <dt>Parent Transaction</dt>
+        <dd>
+          For a given NETCONF server, a transaction that changed the local configuration.
+        </dd>
+        <dt>Child Transaction</dt>
+        <dd>
+          For a given NETCONF client, a transaction that required configuration changes to at least one server.
+        </dd>
+      </dl>
     </section>
     <section anchor="use-cases">
       <name>Use cases</name>
@@ -156,17 +171,20 @@
         <section anchor="configuration-mistakes">
           <name>Configuration Mistakes</name>
           <t>
-            Taking into account that many network anomalies are due to configuration mistakes, this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS.
-            In such as case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS.
-            Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator, the latest (set of of) service request(s) that triggered the configuration modification.
+            Taking into account that many network anomalies are due to configuration mistakes,
+            this mechanism allows to find out whether the offending configuration modification was triggered by a tracing-enabled client/NMS.
+            In such a case, we can map the offending configuration modification id on a server/NE to a local configuration modification id on the client/NMS.
+            Assuming that this mechanism (the YANG module) is implemented on the controller, we can recursively find, in the orchestrator,
+            the latest (set of of) service request(s) that triggered the configuration modification.
             Whether this/those service request(s) are actually the root cause needs to be investigated.
-            However, they are a good starting point for  troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
-            </t>
+            However, they are a good starting point for troubleshooting, post mortem analysis, and in the end the closed loop automation, which is absolutely required for  for self-healing networks.
+          </t>
         </section>
         <section anchor="concurrent-nms-configuration">
           <name>Concurrent NMS Configuration</name>
           <t>
-            Building on the previous use case is the situation where two NMS', unaware of the each other, configuring routers, each believing that they are the only NMS for specific device.
+            Building on the previous use case is the situation where two NMS's, unaware of the each other, are configuring a common router,
+            each believing that they are the only NMS for the common router.
             So one configuration executed by the NMS1 is overwritten by the NMS2, which in turn is overwritten by NMS1, etc.
           </t>
         </section>
@@ -192,11 +210,9 @@
         <t>
           This draft assumes that NETCONF clients or servers (orchestrators, controllers, devices, ...) have some kind of mechanism to record the modifications done to the configuration.
           For instance, routers typically have an history of configuration change and this configuration associates a locally unique identifier to some metadata, such as the timestamp of the modification, the user doing the modification or the protocol used for the modification.
+          Such a locally unique identifier is a Local Commit ID, we assume that it exists on the platform.
+          This Local Commit ID is the link between the module presented in this draft and the device-specific way of storing configuration changes.
         </t>
-          <t>
-            Since there is no standard for storing this configuration id, we assume that a "local-commit-id" exists on the platorm.
-            This local-commit-id is the link between the module presented in this draft and the device-specific way of storing configuration changes.
-          </t>
       </section>
       <section>
         <name>Instantiating the YANG module</name>
@@ -429,15 +445,15 @@
   </middle>
   <back>
     <references title="Normative References">
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6241.xml"/>
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8340.xml"/>
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"/>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"?>
     </references>
     <references title="Informative References">
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8040.xml"/>
-      <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-opsawg-service-assurance-architecture.xml"/>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8040.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-opsawg-service-assurance-architecture.xml"?>
     </references>
     <?rfc needLines="100"?>
     <section>
