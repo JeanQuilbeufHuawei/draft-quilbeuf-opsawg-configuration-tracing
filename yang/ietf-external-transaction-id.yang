@@ -90,8 +90,10 @@ module ietf-external-transaction-id {
            This data node is present only when the configuration was
            pushed by a compatible system.";
       }
-      leaf parent-client-id {
+      leaf client-id {
+        when '../parent-transaction-id';
         type string;
+        mandatory true;
         description
           "ID of the client that originated the modification, to
           further query information about the corresponding

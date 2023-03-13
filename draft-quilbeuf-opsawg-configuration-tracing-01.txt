@@ -115,8 +115,8 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
 
 
      5.2.  YANG module ietf-external-transaction-id  . . . . . . . .  11
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  13
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  13
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  14
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  14
    8.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  14
    9.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  14
      9.1.  Possibility of setting the transaction Id from the
@@ -438,10 +438,10 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    The YANG module defined below enables tracing a configuration change
    in a Network Equipment back to its origin, for instance a service
    request in an orchestrator.  To do so, the Anomaly Detection System
-   (ADS) should have for each NMS ID (as stored in parent-client-id),
-   access to some credentials enabling read access to the model.  It
-   should as well have access to the network equipment in which an issue
-   is detected.
+   (ADS) should have for each NMS ID (as stored in client-id), access to
+   some credentials enabling read access to the model.  It should as
+   well have access to the network equipment in which an issue is
+   detected.
 
 
 
@@ -491,11 +491,11 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
        transaction-id, the change was not done by a client compatible
        with the present draft, and the investigation stops here.
 
-   3.  The ADS queries the client identified by the parent-client-id
-       found at the previous step, looking for a match of the parent-
-       transaction-id from the previous step with a child-transaction-id
-       in the client version of the YANG model.  In Figure 2, for that
-       step, the software would look for the id of tx-2 in the child
+   3.  The ADS queries the client identified by the client-id found at
+       the previous step, looking for a match of the parent-transaction-
+       id from the previous step with a child-transaction-id in the
+       client version of the YANG model.  In Figure 2, for that step,
+       the software would look for the id of tx-2 in the child
        transaction IDs stored in the Controller.
 
 
@@ -510,7 +510,7 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
        (Controller in our case).  Since the local-commit-id is
        associated to a parent-transaction-id, namely the id of tx-1, the
        ADS continues the investigation.  The client to query is
-       identified by the parent-client-id, in our case the Orchestrator.
+       identified by the client-id, in our case the Orchestrator.
 
    5.  The ADS queries the Orchestrator, trying to find a match for the
        Id of tx-1 as a child transaction ID.
@@ -543,7 +543,7 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
            +--ro local-commit-id          string
            +--ro timestamp?               yang:date-and-time
            +--ro parent-transaction-id?   ietf-netconf-txid:etag-t
-           +--ro parent-client-id?        string
+           +--ro client-id                string
            +--ro child-transaction-id*    ietf-netconf-txid:etag-t
 
 
@@ -564,9 +564,9 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
 
    The parent-transaction-id should be present when the server is
    configured by a client supporting the external transaction ID.  In
-   that case, the parent-client-id is mandatory.  The value of both
-   fields are sent by the client whenever it sends the configuration
-   that trigger the changes associated to the local-commit-id.
+   that case, the client-id is mandatory.  The value of both fields are
+   sent by the client whenever it sends the configuration that trigger
+   the changes associated to the local-commit-id.
 
    The child-transaction-id should be present when the current
    configuration change leads to the configuration of other devices.  In
@@ -696,8 +696,10 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
               This data node is present only when the configuration was
               pushed by a compatible system.";
          }
-         leaf parent-client-id {
+         leaf client-id {
+           when '../parent-transaction-id';
            type string;
+           mandatory true;
            description
              "ID of the client that originated the modification, to
               further query information about the corresponding
@@ -715,11 +717,9 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    }
    <CODE ENDS>
 
-6.  Security Considerations
 
-7.  IANA Considerations
 
-   This document includes no request to IANA.
+
 
 
 
@@ -729,6 +729,12 @@ Quilbeuf, et al.        Expires 14 September 2023              [Page 13]
 
 Internet-Draft       Configuration Tracing via tx-id          March 2023
 
+
+6.  Security Considerations
+
+7.  IANA Considerations
+
+   This document includes no request to IANA.
 
 8.  Contributors
 
@@ -771,12 +777,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
-   [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
-              and A. Bierman, Ed., "Network Configuration Protocol
-              (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
-              <https://www.rfc-editor.org/info/rfc6241>.
-
-
 
 
 
@@ -785,6 +785,11 @@ Quilbeuf, et al.        Expires 14 September 2023              [Page 14]
 
 Internet-Draft       Configuration Tracing via tx-id          March 2023
 
+
+   [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
+              and A. Bierman, Ed., "Network Configuration Protocol
+              (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
+              <https://www.rfc-editor.org/info/rfc6241>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
@@ -829,11 +834,6 @@ Authors' Addresses
 
    Jean Quilbeuf
    Huawei
-   Email: jean.quilbeuf@huawei.com
-
-
-   Benoit Claise
-   Huawei
 
 
 
@@ -842,6 +842,11 @@ Quilbeuf, et al.        Expires 14 September 2023              [Page 15]
 Internet-Draft       Configuration Tracing via tx-id          March 2023
 
 
+   Email: jean.quilbeuf@huawei.com
+
+
+   Benoit Claise
+   Huawei
    Email: benoit.claise@huawei.com
 
 
@@ -864,11 +869,6 @@ Internet-Draft       Configuration Tracing via tx-id          March 2023
    Qiong Sun
    China Telecom
    Email: sunqiong@chinatelecom.cn
-
-
-
-
-
 
 
 

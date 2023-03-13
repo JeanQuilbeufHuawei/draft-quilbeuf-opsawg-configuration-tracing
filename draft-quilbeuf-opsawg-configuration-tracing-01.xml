@@ -302,7 +302,7 @@
         <name>Using the YANG module</name>
         <t>
           The YANG module defined below enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
-          To do so, the Anomaly Detection System (ADS) should have for each NMS ID (as stored in parent-client-id), access to some credentials enabling read access to the model.
+          To do so, the Anomaly Detection System (ADS) should have for each NMS ID (as stored in client-id), access to some credentials enabling read access to the model.
           It should as well have access to the network equipment in which an issue is detected.
         </t>
         <figure anchor="configuration-tracing" >
@@ -343,14 +343,14 @@
             If they are no results, or no associated parent-transaction-id, the change was not done by a client compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            The ADS queries the client identified by the parent-client-id found at the previous step, looking for a match of the parent-transaction-id from the previous step
+            The ADS queries the client identified by the client-id found at the previous step, looking for a match of the parent-transaction-id from the previous step
             with a child-transaction-id in the client version of the YANG model.
             In <xref target="configuration-tracing"/>, for that step, the software would look for the id of tx-2 in the child transaction IDs stored in the Controller.
           </li>
           <li>
             From that query, the ADS knows the local-commit-id on the client (Controller in our case).
             Since the local-commit-id is associated to a parent-transaction-id, namely the id of tx-1, the ADS continues the investigation.
-            The client to query is identified by the parent-client-id, in our case the Orchestrator.
+            The client to query is identified by the client-id, in our case the Orchestrator.
           </li>
           <li>
             The ADS queries the Orchestrator, trying to find a match for the Id of tx-1 as a child transaction ID.
@@ -382,7 +382,7 @@ module: ietf-external-transaction-id
         +--ro local-commit-id          string
         +--ro timestamp?               yang:date-and-time
         +--ro parent-transaction-id?   ietf-netconf-txid:etag-t
-        +--ro parent-client-id?        string
+        +--ro client-id                string
         +--ro child-transaction-id*    ietf-netconf-txid:etag-t
             ]]>
           </artwork>
@@ -393,7 +393,7 @@ module: ietf-external-transaction-id
         </t>
         <t>
           The parent-transaction-id should be present when the server is configured by a client supporting the external transaction ID.
-          In that case, the parent-client-id is mandatory.
+          In that case, the client-id is mandatory.
           The value of both fields are sent by the client whenever it sends the configuration that trigger the changes associated to the local-commit-id.
         </t>
         <t>
@@ -503,8 +503,10 @@ module ietf-external-transaction-id {
            This data node is present only when the configuration was
            pushed by a compatible system.";
       }
-      leaf parent-client-id {
+      leaf client-id {
+        when '../parent-transaction-id';
         type string;
+        mandatory true;
         description
           "ID of the client that originated the modification, to
            further query information about the corresponding
