@@ -10,13 +10,6 @@ module ietf-external-transaction-id {
        "RFC 6991: Common YANG Data Types, Section 3";
   }
      
-  import ietf-netconf-txid {
-    prefix ietf-netconf-txid;
-    reference 
-        "draft-lindblad-netconf-transaction-id: 
-                        Transaction ID Mechanism for NETCONF";
-  }
-
   organization
     "IETF OPSAWG Working Group";
   contact
@@ -77,34 +70,24 @@ module ietf-external-transaction-id {
           "A timestamp that can be used to further filter change
           events.";
       }
-      leaf parent-transaction-id {
-        type ietf-netconf-txid:etag-t;
+      leaf trace-id {
+        type binary {
+            length 16;
+        }
         description
-          "External transaction ID, sent by the client, corresponding
-           to a change initiated by an external entity (e.g.,
-           controller, orchestrator). There should be a corresponding
-           entry on that external entity as a child-transaction-id
-           that maps to the actual configuration commit that
-           triggered the configuration of this server.
-
-           This data node is present only when the configuration was
-           pushed by a compatible system.";
+          "Trace ID associated to the local-commit-id. If a client ID
+          is present as well, the trace-id was transmitted by that
+          client. If not, the trace-id was created locally.";
       }
       leaf client-id {
-        when '../parent-transaction-id';
         type string;
-        mandatory true;
         description
           "ID of the client that originated the modification, to
           further query information about the corresponding
-          change.";
-      }
-      leaf-list child-transaction-id {
-        type ietf-netconf-txid:etag-t;
-        description
-          "Transaction ID transmitted to other devices
-           configured following the configuration change
-           corresponding to local-commit-id.";
+          change.
+
+          This data node is present only when the configuration was
+          pushed by a compatible system.";
       }
     }
   }
