@@ -383,7 +383,7 @@
           If the trace is created by the current server, there is no associated client-id.
         </t>
         <t>
-          Even if this document focuses only on NETCONF, the use cases defined in <xref target="use-cases"/> are not specific to NETCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
+          Even if this document focuses only on NETCONF or RESTCONF, the use cases defined in <xref target="use-cases"/> are not specific to NETCONF or RESTCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
           For instance, a configuration modification pushed via CLI can be identified via a label, which could contain the trace-id.
           As such cases are difficult to standardize, we won’t cover them in this document.
         </t>

@@ -476,13 +476,13 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
    transmitted by that client.  If the trace is created by the current
    server, there is no associated client-id.
 
-   Even if this document focuses only on NETCONF, the use cases defined
-   in Section 3 are not specific to NETCONF and the mechanism described
-   in this document could be adapted to other configuration mechanisms.
-   For instance, a configuration modification pushed via CLI can be
-   identified via a label, which could contain the trace-id.  As such
-   cases are difficult to standardize, we won’t cover them in this
-   document.
+   Even if this document focuses only on NETCONF or RESTCONF, the use
+   cases defined in Section 3 are not specific to NETCONF or RESTCONF
+   and the mechanism described in this document could be adapted to
+   other configuration mechanisms.  For instance, a configuration
+   modification pushed via CLI can be identified via a label, which
+   could contain the trace-id.  As such cases are difficult to
+   standardize, we won’t cover them in this document.
 
 5.2.  YANG module ietf-external-transaction-id
 
