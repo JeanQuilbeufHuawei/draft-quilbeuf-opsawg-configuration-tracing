@@ -343,12 +343,11 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
    the changes to the running configuration datastore.  From the running
    configuration datastore perspective, which is the effective one,
    there is a single modification, but caused by several clients, which
-   means that this modification should have several Parent Transaction
-   ID.  Although, this case is technically possible, it is a bad
+   means that this modification should have several corresponding
+   client-ids.  Although, this case is technically possible, it is a bad
    practice.  We won’t cover it in this document.  In other terms, we
    assume that a given configuration modification on a server is caused
-   by a single Parent Transaction, and thus has a single corresponding
-   Parent Transaction ID.
+   by a single client, and thus has a single corresponding client-id.
 
 4.4.  Using the YANG module
 
@@ -384,6 +383,7 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
         Figure 2: Example of Configuration Tracing. tr: trace-id, C:
       Controller, O: orchestrator.  The number between square brackets
                     refer to steps in the listing below.
+
 
 
 
@@ -519,10 +519,11 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
         configuration changes and the external request that triggered
         that change.
 
-        The module stores the identifier of the parent transaction
-        that triggered the change in a device, and the child
-        transaction ID when the local device originates in its turn a
-        transaction.
+        The module stores the identifier of the trace, if any, that
+        triggered the change in a device. If that trace-id was provided
+        by a client, (i.e. not created locally by the server), the id
+        of that client is stored as well to indicated which client
+        triggered the configuration change.
 
         Copyright (c) 2022 IETF Trust and the persons identified as
         authors of the code.  All rights reserved.
@@ -553,7 +554,6 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
          description
            "List of configuration changes, identified by their
             local-commit-id";
-         leaf local-commit-id {
 
 
 
@@ -562,6 +562,7 @@ Quilbeuf, et al.        Expires 21 December 2023               [Page 10]
 Internet-Draft       Configuration Tracing via tx-id           June 2023
 
 
+         leaf local-commit-id {
            type string;
            description
              "Stores the identifier as saved by the server. Can be used
@@ -608,8 +609,7 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
 
 9.  Open Issues / TODO
 
-   *  Indicate what to do with O-RAN apps, since each of them might be
-      seen as a different client with a different client-id.
+
 
 
 
@@ -617,6 +617,9 @@ Quilbeuf, et al.        Expires 21 December 2023               [Page 11]
 
 Internet-Draft       Configuration Tracing via tx-id           June 2023
 
+
+   *  Indicate what to do with O-RAN apps, since each of them might be
+      seen as a different client with a different client-id.
 
 10.  Normative References
 
@@ -660,12 +663,9 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
 
 11.  Informative References
 
-
-
-
-
-
-
+   [I-D.ietf-opsawg-service-assurance-architecture]
+              Claise, B., Quilbeuf, J., Lopez, D., Voyer, D., and T.
+              Arumugam, "Service Assurance for Intent-based Networking
 
 
 
@@ -674,9 +674,6 @@ Quilbeuf, et al.        Expires 21 December 2023               [Page 12]
 Internet-Draft       Configuration Tracing via tx-id           June 2023
 
 
-   [I-D.ietf-opsawg-service-assurance-architecture]
-              Claise, B., Quilbeuf, J., Lopez, D., Voyer, D., and T.
-              Arumugam, "Service Assurance for Intent-based Networking
               Architecture", Work in Progress, Internet-Draft, draft-
               ietf-opsawg-service-assurance-architecture-13, 3 January
               2023, <https://datatracker.ietf.org/doc/html/draft-ietf-
@@ -687,6 +684,11 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
               <https://www.rfc-editor.org/info/rfc8040>.
 
 Appendix A.  Changes between revisions
+
+   01 -> 02
+
+   *  Switch to trace-id instead of transaction id for tracing
+      configuration
 
    00 -> 01
 
@@ -720,14 +722,15 @@ Authors' Addresses
    Binzring 17
    CH-8045 Zurich
    Switzerland
-   Email: thomas.graf@swisscom.com
-
 
 
 
 Quilbeuf, et al.        Expires 21 December 2023               [Page 13]
 
 Internet-Draft       Configuration Tracing via tx-id           June 2023
+
+
+   Email: thomas.graf@swisscom.com
 
 
    Diego R. Lopez
@@ -741,9 +744,6 @@ Internet-Draft       Configuration Tracing via tx-id           June 2023
    Qiong Sun
    China Telecom
    Email: sunqiong@chinatelecom.cn
-
-
-
 
 
 

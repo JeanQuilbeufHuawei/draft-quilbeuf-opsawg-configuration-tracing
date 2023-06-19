@@ -283,9 +283,9 @@
         </t>  -->
         <t>
           It is technically possible that several clients push configuration to the candidate configuration datastore  and only one of them commits the changes to the running configuration datastore.
-          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several Parent Transaction ID.
+          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several corresponding client-ids.
           Although, this case is technically possible, it is a bad practice. We won’t cover it in this document.
-          In other terms, we assume that a given configuration modification on a server is caused by a single Parent Transaction, and thus has a single corresponding Parent Transaction ID.
+          In other terms, we assume that a given configuration modification on a server is caused by a single client, and thus has a single corresponding client-id.
         </t>
       </section>
       <section>
@@ -443,6 +443,12 @@
     <?rfc needLines="100"?>
     <section>
       <name>Changes between revisions</name>
+      <t>
+        01 -> 02
+      </t>
+      <ul>
+        <li> Switch to trace-id instead of transaction id for tracing configuration</li>
+      </ul>
       <t>
         00 -> 01
       </t>

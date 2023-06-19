@@ -23,10 +23,11 @@ module ietf-external-transaction-id {
      configuration changes and the external request that triggered
      that change.
      
-     The module stores the identifier of the parent transaction
-     that triggered the change in a device, and the child
-     transaction ID when the local device originates in its turn a
-     transaction.
+     The module stores the identifier of the trace, if any, that
+     triggered the change in a device. If that trace-id was provided
+     by a client, (i.e. not created locally by the server), the id
+     of that client is stored as well to indicated which client
+     triggered the configuration change.
 
      Copyright (c) 2022 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
