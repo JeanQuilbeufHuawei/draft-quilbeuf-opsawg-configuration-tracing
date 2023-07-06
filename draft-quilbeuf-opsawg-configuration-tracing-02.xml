@@ -585,6 +585,12 @@ module ietf-external-transaction-id {
         <li>
           Define how to pass the client-id. Current leads are the trace-state from <xref target="W3C-Trace-Context"/> and <eref target="https://www.w3.org/TR/baggage/">W3C Baggage</eref>.
         </li>
+        <li>
+          The model and usage presented here focuses of the problem of tracing a configuration change back to its sources.
+          As it relies on <xref target="W3C-Trace-Context"/>, we could also use associated mechanisms for collecting and representing trace data such as OTLP.
+          For instance, we could define a YANG model matching the OTLP protobuffer definition (draft: <eref target="https://github.com/rgaglian/ietf-netconf-trace-context-extension/blob/main/ietf-netconf-otlp-protocol.tree"/>).
+          In that case the client-id could be a specific attribute of the spans list.
+        </li>
       </ul>
     </section>
   </middle>

@@ -121,7 +121,7 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    9.  Open Issues / TODO  . . . . . . . . . . . . . . . . . . . . .  13
    10. Normative References  . . . . . . . . . . . . . . . . . . . .  13
    11. Informative References  . . . . . . . . . . . . . . . . . . .  14
-   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  14
+   Appendix A.  Changes between revisions  . . . . . . . . . . . . .  15
    Appendix B.  Tracing configuration changes  . . . . . . . . . . .  15
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  15
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  15
@@ -701,6 +701,16 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
       state from [W3C-Trace-Context] and W3C Baggage
       (https://www.w3.org/TR/baggage/).
 
+   *  The model and usage presented here focuses of the problem of
+      tracing a configuration change back to its sources.  As it relies
+      on [W3C-Trace-Context], we could also use associated mechanisms
+      for collecting and representing trace data such as OTLP.  For
+      instance, we could define a YANG model matching the OTLP
+      protobuffer definition (draft: https://github.com/rgaglian/ietf-
+      netconf-trace-context-extension/blob/main/ietf-netconf-otlp-
+      protocol.tree).  In that case the client-id could be a specific
+      attribute of the spans list.
+
 10.  Normative References
 
    [I-D.lindblad-netconf-transaction-id]
@@ -709,6 +719,16 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
               transaction-id-02, 8 June 2022,
               <https://datatracker.ietf.org/doc/html/draft-lindblad-
               netconf-transaction-id-02>.
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 7 January 2024                [Page 13]
+
+Internet-Draft       Configuration Tracing via tx-id           July 2023
+
 
    [I-D.rogaglia-netconf-trace-ctx-extension]
               Gagliano, R., Larsson, K., and J. Lindblad, "NETCONF
@@ -722,13 +742,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
-
-
-
-Quilbeuf, et al.         Expires 7 January 2024                [Page 13]
-
-Internet-Draft       Configuration Tracing via tx-id           July 2023
-
 
    [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
               and A. Bierman, Ed., "Network Configuration Protocol
@@ -762,6 +775,17 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
               Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
               <https://www.rfc-editor.org/info/rfc8040>.
 
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 7 January 2024                [Page 14]
+
+Internet-Draft       Configuration Tracing via tx-id           July 2023
+
+
 Appendix A.  Changes between revisions
 
    01 -> 02
@@ -776,15 +800,6 @@ Appendix A.  Changes between revisions
    *  Context for the "local-commit-id" concept
 
    *  Feedback from Med, both in text and YANG module
-
-
-
-
-
-Quilbeuf, et al.         Expires 7 January 2024                [Page 14]
-
-Internet-Draft       Configuration Tracing via tx-id           July 2023
-
 
 Appendix B.  Tracing configuration changes
 
@@ -821,6 +836,12 @@ Authors' Addresses
    Email: diego.r.lopez@telefonica.com
 
 
+
+Quilbeuf, et al.         Expires 7 January 2024                [Page 15]
+
+Internet-Draft       Configuration Tracing via tx-id           July 2023
+
+
    Qiong Sun
    China Telecom
    Email: sunqiong@chinatelecom.cn
@@ -837,4 +858,39 @@ Authors' Addresses
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 15]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Quilbeuf, et al.         Expires 7 January 2024                [Page 16]
