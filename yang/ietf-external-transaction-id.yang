@@ -48,6 +48,60 @@ module ietf-external-transaction-id {
       "RFC xxxx: Title to be completed";
   }
 
+  typedef hex-digits {
+    type string {
+      pattern '[0-9a-f]*';
+    }
+    description
+      "A string composed of hexadecimal digits. Digits represented by
+      letters are restricted to lowercase so that a single
+      representation of a given value is allowed. This enables using
+      the string equality to check equality of the represented
+      values.";
+  }
+
+  grouping trace-parent-g {
+    description
+      "Trace parent frow the W3C trace-context recommandation.
+       Follows the format version 00.";
+    leaf version {
+      type hex-digits {
+        length 2;
+      }
+      must "../version = '00'";
+      description
+        "Version of the trace context. Must be 00 to match the
+        format described in this module.";
+    }
+    leaf trace-id {
+      type hex-digits {
+        length 32;
+      }
+      must "../trace-id != '00000000000000000000000000000000'";
+      description
+        "Trace ID that is common for every transaction that is
+        part of the configuration chain. This value can be used
+        to match a local commit id to a commit local to another
+        system.";
+    }
+    leaf parent-id {
+      type hex-digits {
+        length 16;
+      }
+      description
+        "ID of the request (client-side) that lead to configuring
+        the server hosting this module.";
+    }
+    leaf trace-flags {
+      type hex-digits {
+        length 2;
+      }
+      description
+        "Flags enabled for this trace. See W3C reference for the
+        details about flags.";
+    }
+  }
+
   container external-transactions-id {
     config false;
     description
@@ -71,14 +125,17 @@ module ietf-external-transaction-id {
           "A timestamp that can be used to further filter change
           events.";
       }
-      leaf trace-id {
-        type binary {
-            length 16;
-        }
+      container trace-parent {
         description
-          "Trace ID associated to the local-commit-id. If a client ID
-          is present as well, the trace-id was transmitted by that
-          client. If not, the trace-id was created locally.";
+          "Trace parent associated to the local-commit-id. If a
+           client ID is present as well, the trace context was
+           transmitted by that client. If not, the trace context was
+           created locally.
+
+           This trace-parent must come from the trace context of the
+           request actually modifying the running configuration
+            datastore. This req";
+        uses trace-parent-g;
       }
       leaf client-id {
         type string;

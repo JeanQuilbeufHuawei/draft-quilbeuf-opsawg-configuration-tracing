@@ -1,0 +1,17 @@
+{
+  "ietf-external-transaction-id:external-transactions-id": {
+    "configuration-change": [
+      {
+        "local-commit-id": "C00000001",
+        "timestamp": "2023-07-04T17:07:01",
+        "trace-parent": {
+          "version": "00",
+          "trace-id": "0af7651916cd43dd8448eb211c80319c",
+          "parent-id": "0123456789abcdef",
+          "trace-flags": "01"
+        },
+        "client-id": "controller-01"
+      }
+    ]
+  }
+}
