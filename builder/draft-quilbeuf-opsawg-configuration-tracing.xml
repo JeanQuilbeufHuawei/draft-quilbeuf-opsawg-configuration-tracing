@@ -121,7 +121,7 @@
         This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.
         Practically, this mechanism annotates configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any,
         on the element that requested the configuration modification.
-        It reuses the concept of Trace Context <xref target="W3C-Trace-Context"/> applied to NETCONF as in <xref target="I-D.lindblad-netconf-transaction-id"/>
+        It reuses the concept of Trace Context <xref target="W3C-Trace-Context"/> applied to NETCONF as in <xref target="I-D.ietf-netconf-transaction-id"/>
         The information needed to trace the configuration is stored in a new YANG module that maps a local configuration change to some additional metadata.
         The additional metadata contains the trace ID, and, if the local change is not the beginning of the trace, the ID of the client that triggered the local-change.
       </t>
@@ -139,7 +139,7 @@
         This document uses the terms client and server from <xref target="RFC6241"/>.
       </t>
       <t>
-        This document uses the terms transaction and Transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/>.
+        This document uses the terms transaction and Transaction ID from <xref target="I-D.ietf-netconf-transaction-id"/>.
       </t>
       <t>
         This document uses the term trace ID from <xref target="W3C-Trace-Context"/>.
@@ -437,7 +437,7 @@
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"?>
-      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-netconf-transaction-id-01.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-rogaglia-netconf-trace-ctx-extension-01.xml"?>
       <reference anchor="W3C-Trace-Context" target="https://www.w3.org/TR/2021/REC-trace-context-1-20211123/">
         <front>

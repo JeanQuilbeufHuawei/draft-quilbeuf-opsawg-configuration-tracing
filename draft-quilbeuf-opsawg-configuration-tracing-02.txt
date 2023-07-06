@@ -177,8 +177,8 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    unambiguously identify the corresponding transaction, if any, on the
    element that requested the configuration modification.  It reuses the
    concept of Trace Context [W3C-Trace-Context] applied to NETCONF as in
-   [I-D.lindblad-netconf-transaction-id] The information needed to trace
-   the configuration is stored in a new YANG module that maps a local
+   [I-D.ietf-netconf-transaction-id] The information needed to trace the
+   configuration is stored in a new YANG module that maps a local
    configuration change to some additional metadata.  The additional
    metadata contains the trace ID, and, if the local change is not the
    beginning of the trace, the ID of the client that triggered the
@@ -195,7 +195,7 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    This document uses the terms client and server from [RFC6241].
 
    This document uses the terms transaction and Transaction ID from
-   [I-D.lindblad-netconf-transaction-id].
+   [I-D.ietf-netconf-transaction-id].
 
    This document uses the term trace ID from [W3C-Trace-Context].
 
@@ -713,12 +713,12 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 10.  Normative References
 
-   [I-D.lindblad-netconf-transaction-id]
+   [I-D.ietf-netconf-transaction-id]
               Lindblad, J., "Transaction ID Mechanism for NETCONF", Work
-              in Progress, Internet-Draft, draft-lindblad-netconf-
-              transaction-id-02, 8 June 2022,
-              <https://datatracker.ietf.org/doc/html/draft-lindblad-
-              netconf-transaction-id-02>.
+              in Progress, Internet-Draft, draft-ietf-netconf-
+              transaction-id-01, 4 July 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-netconf-
+              transaction-id-01>.
 
 
 
