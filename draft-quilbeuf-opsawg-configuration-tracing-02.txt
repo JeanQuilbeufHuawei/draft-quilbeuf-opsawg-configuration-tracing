@@ -122,9 +122,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    10. Normative References  . . . . . . . . . . . . . . . . . . . .  13
    11. Informative References  . . . . . . . . . . . . . . . . . . .  14
    Appendix A.  Changes between revisions  . . . . . . . . . . . . .  14
-   Appendix B.  Tracing configuration changes  . . . . . . . . . . .  14
-   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  14
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  14
+   Appendix B.  Tracing configuration changes  . . . . . . . . . . .  15
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  15
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  15
 
 1.  Introduction
 
@@ -470,14 +470,16 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    changes, which is device-specific.  It can be used to retrieve the
    local configuration changes that happened during that transaction.
 
-   The trace-id is present to indicate the trace associated to the
-   local-commit-id.  This trace-id can be transmitted by a client or
-   created by the current server.  In some cases, for instance direct
-   configuration of the device, the device may choose to not include the
-   trace-id.
+   The trace-parent is present to identify the trace associated to the
+   local-commit-id.  This trace-parent can be transmitted by a client or
+   created by the current server.  In Section 4.4, the most important
+   field in trace-parent is the trace-id.  We also included the other
+   fields for trace-parent as defined in [W3C-Trace-Context] for the
+   sake of completion.  In some cases, for instance direct configuration
+   of the device, the device may choose to not include the trace-id.
 
-   The presence of a client-id indicates that the trace-id has been
-   transmitted by that client.  If the trace is created by the current
+   The presence of a client-id indicates that the trace-parent has been
+   transmitted by that client.  If the trace is initiated by the current
    server, there is no associated client-id.
 
    Even if this document focuses only on NETCONF or RESTCONF, the use
@@ -485,7 +487,7 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    and the mechanism described in this document could be adapted to
    other configuration mechanisms.  For instance, a configuration
    modification pushed via CLI can be identified via a label, which
-   could contain the trace-id.  As such cases are difficult to
+   could contain the trace-parent.  As such cases are difficult to
    standardize, we won’t cover them in this document.
 
 5.2.  YANG module ietf-external-transaction-id
@@ -497,8 +499,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
        "urn:ietf:params:xml:ns:yang:ietf-external-transaction-id";
      prefix ext-txid;
 
-     import ietf-yang-types {
-
 
 
 Quilbeuf, et al.         Expires 7 January 2024                 [Page 9]
@@ -506,6 +506,7 @@ Quilbeuf, et al.         Expires 7 January 2024                 [Page 9]
 Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
+     import ietf-yang-types {
        prefix yang;
        reference
          "RFC 6991: Common YANG Data Types, Section 3";
@@ -553,7 +554,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
        type string {
          pattern '[0-9a-f]*';
        }
-       description
 
 
 
@@ -562,6 +562,7 @@ Quilbeuf, et al.         Expires 7 January 2024                [Page 10]
 Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
+       description
          "A string composed of hexadecimal digits. Digits represented by
           letters are restricted to lowercase so that a single
           representation of a given value is allowed. This enables using
@@ -609,7 +610,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
            "Flags enabled for this trace. See W3C reference for the
             details about flags.";
        }
-     }
 
 
 
@@ -617,6 +617,8 @@ Quilbeuf, et al.         Expires 7 January 2024                [Page 11]
 
 Internet-Draft       Configuration Tracing via tx-id           July 2023
 
+
+     }
 
      container external-transactions-id {
        config false;
@@ -650,7 +652,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
               This trace-parent must come from the trace context of the
               request actually modifying the running configuration
-               datastore. This req";
+              datastore. This request might be an edit-config or a
+              commit depending on whether the candidate datastore is
+              used.";
            uses trace-parent-g;
          }
          leaf client-id {
@@ -662,10 +666,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
               This data node is present only when the configuration was
               pushed by a compatible system.";
-         }
-       }
-     }
-   }
 
 
 
@@ -674,6 +674,10 @@ Quilbeuf, et al.         Expires 7 January 2024                [Page 12]
 Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
+         }
+       }
+     }
+   }
    <CODE ENDS>
 
 6.  Security Considerations
@@ -687,7 +691,15 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 9.  Open Issues / TODO
 
    *  Indicate what to do with O-RAN apps, since each of them might be
-      seen as a different client with a different client-id.
+      seen as a different client with a different client-id.  This is
+      actually a requirement that the client-id should be granular
+      enough to distinguish between different controllers colocated on
+      the same device.  For instance, the IP address might not be a
+      suitable client-id in that case.
+
+   *  Define how to pass the client-id.  Current leads are the trace-
+      state from [W3C-Trace-Context] and W3C Baggage
+      (https://www.w3.org/TR/baggage/).
 
 10.  Normative References
 
@@ -711,6 +723,13 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
+
+
+Quilbeuf, et al.         Expires 7 January 2024                [Page 13]
+
+Internet-Draft       Configuration Tracing via tx-id           July 2023
+
+
    [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
               and A. Bierman, Ed., "Network Configuration Protocol
               (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
@@ -719,16 +738,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
-
-
-
-
-
-
-Quilbeuf, et al.         Expires 7 January 2024                [Page 13]
-
-Internet-Draft       Configuration Tracing via tx-id           July 2023
-
 
    [RFC8340]  Bjorklund, M. and L. Berger, Ed., "YANG Tree Diagrams",
               BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
@@ -757,7 +766,7 @@ Appendix A.  Changes between revisions
 
    01 -> 02
 
-   *  Switch to trace-id instead of transaction id for tracing
+   *  Switch to trace-parent instead of transaction id for tracing
       configuration
 
    00 -> 01
@@ -768,15 +777,6 @@ Appendix A.  Changes between revisions
 
    *  Feedback from Med, both in text and YANG module
 
-Appendix B.  Tracing configuration changes
-
-Acknowledgements
-
-   The authors would like to thank Mohamed Boucadair for his reviews and
-   propositions.
-
-Authors' Addresses
-
 
 
 
@@ -785,6 +785,15 @@ Quilbeuf, et al.         Expires 7 January 2024                [Page 14]
 
 Internet-Draft       Configuration Tracing via tx-id           July 2023
 
+
+Appendix B.  Tracing configuration changes
+
+Acknowledgements
+
+   The authors would like to thank Mohamed Boucadair, Jan Linblad and
+   Roque Gagliano for their reviews and propositions.
+
+Authors' Addresses
 
    Jean Quilbeuf
    Huawei
@@ -815,15 +824,6 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
    Qiong Sun
    China Telecom
    Email: sunqiong@chinatelecom.cn
-
-
-
-
-
-
-
-
-
 
 
 

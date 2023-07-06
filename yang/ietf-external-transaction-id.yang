@@ -134,7 +134,9 @@ module ietf-external-transaction-id {
 
            This trace-parent must come from the trace context of the
            request actually modifying the running configuration
-            datastore. This req";
+           datastore. This request might be an edit-config or a
+           commit depending on whether the candidate datastore is
+           used.";
         uses trace-parent-g;
       }
       leaf client-id {

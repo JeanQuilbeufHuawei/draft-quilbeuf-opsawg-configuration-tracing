@@ -288,7 +288,7 @@
           In other terms, we assume that a given configuration modification on a server is caused by a single client, and thus has a single corresponding client-id.
         </t>
       </section>
-      <section>
+      <section anchor="module-usage">
         <name>Using the YANG module</name>
         <t>
           The YANG module defined below enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
@@ -374,17 +374,19 @@
           It can be used to retrieve the local configuration changes that happened during that transaction.
         </t>
         <t>
-          The trace-id is present to indicate the trace associated to the local-commit-id.
-          This trace-id can be transmitted by a client or created by the current server.
+          The trace-parent is present to identify the trace associated to the local-commit-id.
+          This trace-parent can be transmitted by a client or created by the current server.
+          In <xref target="module-usage"/>, the most important field in trace-parent is the trace-id.
+          We also included the other fields for trace-parent as defined in <xref target="W3C-Trace-Context"/> for the sake of completion.
           In some cases, for instance direct configuration of the device, the device may choose to not include the trace-id.
         </t>
         <t>
-          The presence of a client-id indicates that the trace-id has been transmitted by that client.
-          If the trace is created by the current server, there is no associated client-id.
+          The presence of a client-id indicates that the trace-parent has been transmitted by that client.
+          If the trace is initiated by the current server, there is no associated client-id.
         </t>
         <t>
           Even if this document focuses only on NETCONF or RESTCONF, the use cases defined in <xref target="use-cases"/> are not specific to NETCONF or RESTCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
-          For instance, a configuration modification pushed via CLI can be identified via a label, which could contain the trace-id.
+          For instance, a configuration modification pushed via CLI can be identified via a label, which could contain the trace-parent.
           As such cases are difficult to standardize, we won’t cover them in this document.
         </t>
       </section>
@@ -414,6 +416,11 @@
       <ul>
         <li>
           Indicate what to do with O-RAN apps, since each of them might be seen as a different client with a different client-id.
+          This is actually a requirement that the client-id should be granular enough to distinguish between different controllers colocated on the same device.
+          For instance, the IP address might not be a suitable client-id in that case.
+        </li>
+        <li>
+          Define how to pass the client-id. Current leads are the trace-state from <xref target="W3C-Trace-Context"/> and <eref target="https://www.w3.org/TR/baggage/">W3C Baggage</eref>.
         </li>
       </ul>
     </section>
@@ -447,7 +454,7 @@
         01 -> 02
       </t>
       <ul>
-        <li> Switch to trace-id instead of transaction id for tracing configuration</li>
+        <li> Switch to trace-parent instead of transaction id for tracing configuration</li>
       </ul>
       <t>
         00 -> 01
@@ -464,7 +471,7 @@
     <section numbered="false">
       <name>Acknowledgements</name>
         <t>
-           The authors would like to thank Mohamed Boucadair for his reviews and propositions.
+           The authors would like to thank Mohamed Boucadair, Jan Linblad and Roque Gagliano for their reviews and propositions.
         </t>
     </section>
   </back>
