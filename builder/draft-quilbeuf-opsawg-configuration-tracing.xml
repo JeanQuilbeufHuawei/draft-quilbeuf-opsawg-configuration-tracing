@@ -109,7 +109,7 @@
       <t>
         This specification focuses only on configuration pushed via NETCONF <xref target="RFC6241"/> or RESTCONF <xref target="RFC8040"/>.
         The rationale for this choice is that NETCONF is better suited for normalization than other protocols (SNMP, CLI).
-        Another reason is that the notion of trace context, useful to track configuration modifications, has been ported to NETCONF in <xref target="I-D.rogaglia-netconf-trace-ctx-extension"/>.
+        Another reason is that the notion of trace context, useful to track configuration modifications, has been ported to NETCONF in <xref target="I-D.rogaglia-netconf-trace-ctx-extension"/> and RESTCONF in <xref target="I-D.rogaglia-netconf-restconf-trace-ctx-headers"/>.
       </t>
       <t>
         The same network element, or NETCONF <xref target="RFC6241"/> server, can be configured by different NMSs or NETCONF clients.
@@ -438,7 +438,8 @@
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-netconf-transaction-id-01.xml"?>
-      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-rogaglia-netconf-trace-ctx-extension-01.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-rogaglia-netconf-trace-ctx-extension-03.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-rogaglia-netconf-restconf-trace-ctx-headers-00.xml"?>
       <reference anchor="W3C-Trace-Context" target="https://www.w3.org/TR/2021/REC-trace-context-1-20211123/">
         <front>
           <title>W3C Recommendation on Trace Context</title>
