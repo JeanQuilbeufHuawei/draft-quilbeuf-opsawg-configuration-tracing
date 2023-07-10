@@ -9,7 +9,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?> -->
 <rfc
         xmlns:xi="http://www.w3.org/2001/XInclude"
-        docName="draft-quilbeuf-opsawg-configuration-tracing-01"
+        docName="draft-quilbeuf-opsawg-configuration-tracing-02"
         category="std"
         ipr="trust200902"
         obsoletes=""
@@ -21,8 +21,8 @@
         symRefs="true"
         version="3" >
 <front>
-    <title abbrev="Configuration Tracing via tx-id">External Transaction ID for Configuration Tracing</title>
-    <seriesInfo name="Internet-Draft" value="draft-quilbeuf-opsawg-configuration-tracing-01"/>
+    <title abbrev="Configuration Tracing via trace-id">External Trace ID for Configuration Tracing</title>
+    <seriesInfo name="Internet-Draft" value="draft-quilbeuf-opsawg-configuration-tracing-02"/>
     <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf ">
       <organization>Huawei</organization>
       <address>
@@ -85,8 +85,7 @@
         configuration change that led to an anomaly detection.  This mechanism facilitates the troubleshooting, the post mortem
         analysis, and in the end the closed loop automation required for
         self-healing networks.  The specification also includes a YANG module that is meant
-        to map a local configuration change to the corresponding change
-        transaction, up to the controller or even the orchestrator.
+        to map a local configuration change to the corresponding  trace id, up to the controller or even the orchestrator.
       </t>
     </abstract>
     <note removeInRFC="true">
@@ -108,9 +107,9 @@
         Therefore, we need to be able to trace a configuration modification on a device back to the reason that triggered that modification, for instance in a NMS, whether the controller or the orchestrator.
       </t>
       <t>
-        This specification focuses only on configuration pushed via NETCONF <xref target="RFC6241"/>.
+        This specification focuses only on configuration pushed via NETCONF <xref target="RFC6241"/> or RESTCONF <xref target="RFC8040"/>.
         The rationale for this choice is that NETCONF is better suited for normalization than other protocols (SNMP, CLI).
-        Another reason is that the notion of transaction ID, useful to track configuration modification, is already defined in <xref target="I-D.lindblad-netconf-transaction-id"/> and comes from RESTCONF <xref target="RFC8040"/>.
+        Another reason is that the notion of trace context, useful to track configuration modifications, has been ported to NETCONF in <xref target="I-D.rogaglia-netconf-trace-ctx-extension"/> and RESTCONF in <xref target="I-D.rogaglia-netconf-restconf-trace-ctx-headers"/>.
       </t>
       <t>
         The same network element, or NETCONF <xref target="RFC6241"/> server, can be configured by different NMSs or NETCONF clients.
@@ -122,11 +121,9 @@
         This document specifies a mechanism to automatically map the configuration modifications to their source, up to a specific NMS service request.
         Practically, this mechanism annotates configuration changes on the configured element with sufficient information to unambiguously identify the corresponding transaction, if any,
         on the element that requested the configuration modification.
-        It reuses the concept of a NETCONF transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/> and additionally requires an ID for the client.
+        It reuses the concept of Trace Context <xref target="W3C-Trace-Context"/> applied to NETCONF as in <xref target="I-D.ietf-netconf-transaction-id"/>
         The information needed to trace the configuration is stored in a new YANG module that maps a local configuration change to some additional metadata.
-        In the server, this metadata includes the ID of the client triggering the configuration change as well as the transaction ID corresponding to that change in the client.
-        In the client, the metadata includes the transaction ID for each server configured during the local configuration change.
-        In case of a controller, which plays both the role of server (for an orchestrator) and client (for a network equipment), the metadata associated to both the server-side and the client-side of the translation are stored.
+        The additional metadata contains the trace ID, and, if the local change is not the beginning of the trace, the ID of the client that triggered the local-change.
       </t>
     </section>
     <section anchor="terminology">
@@ -142,7 +139,10 @@
         This document uses the terms client and server from <xref target="RFC6241"/>.
       </t>
       <t>
-        This document uses the terms transaction and Transaction ID from <xref target="I-D.lindblad-netconf-transaction-id"/>.
+        This document uses the terms transaction and Transaction ID from <xref target="I-D.ietf-netconf-transaction-id"/>.
+      </t>
+      <t>
+        This document uses the term trace ID from <xref target="W3C-Trace-Context"/>.
       </t>
       <dl>
         <dt>Local Commit ID</dt>
@@ -150,16 +150,6 @@
           Identifier of a local configuration change on a Network Equipment, Controller, Orchestrator or any other device or software handling configuration.
           Such an identifier is usually present in devices that can show an history of the configuration changes, to identify one such configuration change.
         </dd>
-        <dt>Parent Transaction</dt>
-        <dd>
-          For a given NETCONF server, a transaction that changed the local configuration.
-        </dd>
-        <dt>Child Transaction</dt>
-        <dd>
-          For a given NETCONF client, a transaction that required configuration changes to at least one server.
-        </dd>
-        <dt>Client ID</dt>
-        <dd>ID of a NETCONF client, must be unique among all NETCONF clients that configure the network.</dd>
       </dl>
     </section>
     <section anchor="use-cases">
@@ -206,12 +196,12 @@
         </section>
       </section>
     <section anchor="transaction-id-tracing">
-      <name>Relying on Transaction ID to Trace Configuration Modifications</name>
+      <name>Relying on W3C Trace Context to Trace Configuration Modifications</name>
       <section>
         <name>Existing configuration metadata on device</name>
         <t>
           This document assumes that NETCONF clients or servers (orchestrators, controllers, devices, ...) have some kind of mechanism to record the modifications done to the configuration.
-          For instance, devices typically have an history of configuration change and this configuration associates a locally unique identifier to some metadata, such as the timestamp of the modification, the user doing the modification or the protocol used for the modification.
+          For instance, devices typically have an history of configuration changes and this history associates a locally unique identifier to some metadata, such as the timestamp of the modification, the user doing the modification or the protocol used for the modification.
           Such a locally unique identifier is a Local Commit ID, we assume that it exists on the platform.
           This Local Commit ID is the link between the module presented in this draft and the device-specific way of storing configuration changes.
         </t>
@@ -219,7 +209,8 @@
       <section>
         <name>Client ID</name>
         <t>
-            This document assumes that each NETCONF client for which configuration must be traced (for instance orchestrator and controllers) has a unique client ID among the other NETCONF clients in the network.
+            This document assumes that each NETCONF client for which configuration must be traced (for instance orchestrator and controllers)
+               has a unique client ID among the other NETCONF clients in the network.
             Such an ID could be an IP address or a host name.
             The mechanism for providing and defining this client ID is out of scope of the current document.
         </t>
@@ -227,25 +218,21 @@
       <section>
         <name>Instantiating the YANG module</name>
         <t>
-          In <xref target="I-D.lindblad-netconf-transaction-id"/>, the concept of a NETCONF transaction ID is proposed, to match the same mechanism from RESTCONF <xref target="RFC8040"/>.
-          The goal of this document is to speed up the re-synchronization process between a client and a server, by using a common transaction ID.
-          If the current transaction ID on the server is the same as the transaction ID known by the client, then both are synchronized.
-          Otherwise, the client has to fetch again the configuration.
-          The transaction ID can be applied to the whole configuration or to so-called versioned nodes.
-          In the latter case, only versioned nodes for which the transaction ID differs need to be updated.
+            <xref target="I-D.rogaglia-netconf-trace-ctx-extension"/> defines a NETCONF extension providing the trace context from <xref target="W3C-Trace-Context"/>.
+            Using this mechanism, the NETCONF server captures the trace-id, when available, and maps it to a local commit ID, by populating the YANG module.
         </t>
         <figure anchor="hierarchical-configuration" >
-          <name>Example of Hierarchical Configuration. tx: transaction</name>
+          <name>Example of Hierarchical Configuration. tx: transaction. tr: trace.</name>
           <artwork><![CDATA[
                          +---------------+
                          | Orchestrator  |
                          +---------------+
-                                | tx-1
+                                | tr-1, tx-1
                                 v
                          +---------------+
                          |   Controller  |
                          +---------------+
-                           | tx-2      | tx-3
+                tr-1, tx-2 |           | tr-1, tx-3
                            v           v
                         +-----+     +-----+
                         | NE1 |     | NE2 |
@@ -253,6 +240,7 @@
             ]]>
           </artwork>
         </figure>
+        <!--
         <t>
           A server considers as a Parent Transaction a transaction that modifies its configuration.
           On <xref target="hierarchical-configuration"/>, tx-1 is a Parent Transaction for the Controller.
@@ -292,42 +280,42 @@
           The two cases above are not mutually exclusive. A Controller can be configured by an Orchestrator and configure network equipment in turn, as shown in <xref target="hierarchical-configuration"/>.
           In that case, both the Parent Transaction ID, shared with the Orchestrator and the Child Transaction IDs, shared with the network equipments, are stored in the Controller.
           They are both associated to the corresponding configuration commit in the Controller.
-        </t>
+        </t>  -->
         <t>
           It is technically possible that several clients push configuration to the candidate configuration datastore  and only one of them commits the changes to the running configuration datastore.
-          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several Parent Transaction ID.
+          From the running configuration datastore perspective, which is the effective one, there is a single modification, but caused by several clients, which means that this modification should have several corresponding client-ids.
           Although, this case is technically possible, it is a bad practice. We won’t cover it in this document.
-          In other terms, we assume that a given configuration modification on a server is caused by a single Parent Transaction, and thus has a single corresponding Parent Transaction ID.
+          In other terms, we assume that a given configuration modification on a server is caused by a single client, and thus has a single corresponding client-id.
         </t>
       </section>
-      <section>
+      <section anchor="module-usage">
         <name>Using the YANG module</name>
         <t>
           The YANG module defined below enables tracing a configuration change in a Network Equipment back to its origin, for instance a service request in an orchestrator.
-          To do so, the Anomaly Detection System (ADS) should have for each NMS ID (as stored in client-id), access to some credentials enabling read access to the model.
+          To do so, the Anomaly Detection System (ADS) should have, for each client-id, access to some credentials enabling read access to the YANG module for configuration tracing on that client.
           It should as well have access to the network equipment in which an issue is detected.
         </t>
         <figure anchor="configuration-tracing" >
-          <name>Example of Configuration Tracing. tx: transaction, P: parent, C: child. The number between square brackets refer to steps in the listing below.</name>
+          <name>Example of Configuration Tracing. tr: trace-id, C: Controller, O: orchestrator. The number between square brackets refer to steps in the listing below.</name>
           <artwork><![CDATA[
                                                   +---------------+
-     .----------------[5]match C tx-1------------>|               |
+     .----------------[5]match tr-1-------------->|               |
      |                                            | Orchestrator  |
      | ----------------[6]commit-id---------------|               |
      | |                                          +---------------+
      | |                                                | tx-1
      | |                                                v
      | |                                          +---------------+
-     | |   .-----------[3] match C tx-2---------->|               |
+     | |   .-----------[3] match tr-1------------>|               |
      | |   |                                      |   Controller  |
-     | |   | .-----------[4] P-tx-id tx-1---------|               |
+     | |   | .-----------[4] c-id O tr-1----------|               |
      | |   | |                                    +---------------+
      | |   | |                                          | tx-2
      | v   | v                                          v
    +-----------+                                      +----+
    | Anomaly   |--[1] match commit-id before time t-->|    |
    | Detection |                                      | NE |
-   | System    |<--------- [2] P-tx-id tx-2 ----------|    |
+   | System    |<--------- [2] c-id C tr-1------------|    |
    +----------+                                       +----+
       ]]>
           </artwork>
@@ -338,34 +326,33 @@
         </t>
         <ol>
           <li>
-            The Anomaly Detection System (ADS) identifies the commit id that created an issue, for instance by looking for the last commit-id occuring before the issue was detected. The ADS queries the NE for the Parent Transaction ID and client id associated to the commit-id.
+            The Anomaly Detection System (ADS) identifies the commit id that created an issue, for instance by looking for the last commit-id occurring before the issue was detected.
+            The ADS queries the NE for the trace id and client id associated to the commit-id.
           </li>
           <li>
-            The ADS receives the Parent Transaction ID. In <xref target="configuration-tracing"/>, that step would recieve the id of tx-2 and the id of the Controller as a result.
-            If they are no results, or no associated Parent Transaction ID, the change was not done by a client compatible with the present draft, and the investigation stops here.
+            The ADS receives the trace-id and the client-id. In <xref target="configuration-tracing"/>, that step would receive the trace-id tr-1 and the id of the Controller as a result.
+            If there is no associated client-id, the change was not done by a client compatible with the present draft, and the investigation stops here.
           </li>
           <li>
-            The ADS queries the client identified by the client-id found at the previous step, looking for a match of the Parent Transaction ID from the previous step
-            with a Child Transaction ID in the client version of the YANG model.
-            In <xref target="configuration-tracing"/>, for that step, the software would look for the id of tx-2 in the Child Transaction IDs stored in the Controller.
+            The ADS queries the client identified by the client-id found at the previous step, looking for a match of the trace-id from the previous step.
+            In <xref target="configuration-tracing"/>, for that step, the software would look for the trace-id tr-1 stored in the Controller.
           </li>
           <li>
             From that query, the ADS knows the local-commit-id on the client (Controller in our case).
-            Since the local-commit-id is associated to a Parent Transaction ID, namely the id of tx-1, the ADS continues the investigation.
-            The client to query is identified by the client-id, in our case the Orchestrator.
+            Since the local-commit-id is associated to a client-id pointing to the Orchestrator, the ADS continues the investigation.
           </li>
           <li>
-            The ADS queries the Orchestrator, trying to find a match for the Id of tx-1 as a Child Transaction ID.
+            The ADS queries the Orchestrator, trying to find a match for the trace-id tr-1.
           </li>
           <li>
             Finally, the ADS receives the commit-id from the Orchestrator that ultimately caused the issue in the NE.
-            Since there is no associated Parent Transaction ID, the investigation stops here.
+            Since there is no associated client-id, the investigation stops here.
             The modification associated to the commit-id, for instance a service request, is now available for further manual or automated analysis, such as analyzing the root cause of the issue.
           </li>
         </ol>
         <t>
           Note that step 5 and 6 are actually a repetition of step 3 and 4.
-          The general algorithm is to continue looking for a client until no more client (no more Parent Transaction ID) can be found in the current element.
+          The general algorithm is to continue looking for a client until no more client-id can be found in the current element.
         </t>
       </section>
     </section>
@@ -383,24 +370,24 @@
           </artwork>
         </figure>
         <t> 
-          The local-commit-id represents the local id of the configuration changes.
+          The local-commit-id represents the local id of the configuration changes, which is device-specific.
           It can be used to retrieve the local configuration changes that happened during that transaction.
         </t>
         <t>
-          The Parent Transaction ID should be present when the server is configured by a client supporting the external transaction ID.
-          In that case, the client-id is mandatory.
-          The value of both fields are sent by the client whenever it sends the configuration that trigger the changes associated to the local-commit-id.
+          The trace-parent is present to identify the trace associated to the local-commit-id.
+          This trace-parent can be transmitted by a client or created by the current server.
+          In <xref target="module-usage"/>, the most important field in trace-parent is the trace-id.
+          We also included the other fields for trace-parent as defined in <xref target="W3C-Trace-Context"/> for the sake of completion.
+          In some cases, for instance direct configuration of the device, the device may choose to not include the trace-id.
         </t>
         <t>
-          The Child Transaction ID should be present when the current configuration change leads to the configuration of other devices.
-          In that case, the Child Transaction ID should be generated by the server (and unique among other Child Transaction ID fields generated on this server), sent to the configured devices and saved in that field.
-          If the configured server do not support having a forced transaction id, then the transaction IDs resulting of the configuration of the servers must be stored in that list.
+          The presence of a client-id indicates that the trace-parent has been transmitted by that client.
+          If the trace is initiated by the current server, there is no associated client-id.
         </t>
         <t>
-          Even if this document focuses only on NETCONF, the use cases defined in <xref target="use-cases"/> are not specific to NETCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
-          For instance, a configuration modification pushed via CLI can be identified via a label.
+          Even if this document focuses only on NETCONF or RESTCONF, the use cases defined in <xref target="use-cases"/> are not specific to NETCONF or RESTCONF and the mechanism described in this document could be adapted to other configuration mechanisms.
+          For instance, a configuration modification pushed via CLI can be identified via a label, which could contain the trace-parent.
           As such cases are difficult to standardize, we won’t cover them in this document.
-          However, our model could be extended to support such mechanism for instance by using a configuration label instead of the Parent Transaction ID.
         </t>
       </section>
       
@@ -428,29 +415,20 @@
       <name>Open Issues / TODO</name>
       <ul>
         <li>
-          Evaluate risk of collision between transaction ids in the Child Transaction ID.
-          Example scenario:
-          &nbsp;&nbsp;1) client configures server 1 and server 2 for commit-id (client) 1
-                the Child Transaction IDs are A (server 1)  B (server 2)
-          &nbsp;&nbsp;2) client configures server 1 and server 2 for commit-id (client) 2
-                the Child Transaction IDs are B (server 1)  C (server 2)
-          &nbsp;&nbsp;3) the last configuration of server 1 causes an issue, when looking for
-                 Child Transaction id B, it’s not clear whether the issue comes from commit 1 or commit 2 in the client
+          Indicate what to do with O-RAN apps, since each of them might be seen as a different client with a different client-id.
+          This is actually a requirement that the client-id should be granular enough to distinguish between different controllers colocated on the same device.
+          For instance, the IP address might not be a suitable client-id in that case.
         </li>
         <li>
-          Indicate what to do with O-RAN apps, since each of them might be seen as a different client with a different client-id.
+          Define how to pass the client-id. Current leads are the trace-state from <xref target="W3C-Trace-Context"/> and <eref target="https://www.w3.org/TR/baggage/">W3C Baggage</eref>.
+        </li>
+        <li>
+          The model and usage presented here focuses of the problem of tracing a configuration change back to its sources.
+          As it relies on <xref target="W3C-Trace-Context"/>, we could also use associated mechanisms for collecting and representing trace data such as OTLP.
+          For instance, we could define a YANG model matching the OTLP protobuffer definition (draft: <eref target="https://github.com/rgaglian/ietf-netconf-trace-context-extension/blob/main/ietf-netconf-otlp-protocol.tree"/>).
+          In that case the client-id could be a specific attribute of the spans list.
         </li>
       </ul>
-      <section anchor="set-tx-id">
-        <name>Possibility of setting the transaction Id from the client </name>
-        <t>
-          In the -00 version of <xref target="I-D.lindblad-netconf-transaction-id"/>, there is the possibility for
-          the client to set the transaction id when sending the configuration to the server.
-          This feature has been removed in subsequent versions.
-          In this draft, we call this feature set-tx-id.
-          Such a feature would simplify the present draft, therefore we try to present two versions, one with the feature set-tx-id available and one without.
-        </t>
-      </section>
     </section>
   </middle>
   <back>
@@ -459,7 +437,18 @@
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6241.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"?>
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8340.xml"?>
-      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-lindblad-netconf-transaction-id-02.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-netconf-transaction-id-01.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-rogaglia-netconf-trace-ctx-extension-03.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-rogaglia-netconf-restconf-trace-ctx-headers-00.xml"?>
+      <reference anchor="W3C-Trace-Context" target="https://www.w3.org/TR/2021/REC-trace-context-1-20211123/">
+        <front>
+          <title>W3C Recommendation on Trace Context</title>
+          <author >
+            <organization></organization>
+          </author>
+          <date year="2021" month="November" day="23"/>
+        </front>
+</reference>
     </references>
     <references title="Informative References">
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8040.xml"?>
@@ -468,6 +457,12 @@
     <?rfc needLines="100"?>
     <section>
       <name>Changes between revisions</name>
+      <t>
+        01 -> 02
+      </t>
+      <ul>
+        <li> Switch to trace-parent instead of transaction id for tracing configuration</li>
+      </ul>
       <t>
         00 -> 01
       </t>
@@ -483,7 +478,7 @@
     <section numbered="false">
       <name>Acknowledgements</name>
         <t>
-           The authors would like to thank Mohamed Boucadair for his reviews and propositions.
+           The authors would like to thank Mohamed Boucadair, Jan Linblad and Roque Gagliano for their reviews and propositions.
         </t>
     </section>
   </back>

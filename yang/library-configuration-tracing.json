@@ -1,0 +1,20 @@
+{
+  "ietf-yang-library:modules-state": {
+    "module-set-id": "ietf-external-transaction-id",
+    "module": [
+      {
+        "name": "ietf-external-transaction-id",
+        "namespace":
+        "urn:ietf:params:xml:ns:yang:ietf-external-transaction-id",
+        "revision": "2022-10-20",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-yang-types",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-types",
+        "revision": "2021-04-14",
+        "conformance-type": "import"
+      }
+    ]
+  }
+}
