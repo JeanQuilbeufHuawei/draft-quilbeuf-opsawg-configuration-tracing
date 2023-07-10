@@ -5,17 +5,17 @@
 OPSAWG                                                       J. Quilbeuf
 Internet-Draft                                                 B. Claise
 Intended status: Standards Track                                  Huawei
-Expires: 7 January 2024                                          T. Graf
+Expires: 11 January 2024                                         T. Graf
                                                                 Swisscom
                                                                 D. Lopez
                                                           Telefonica I+D
                                                                   Q. Sun
                                                            China Telecom
-                                                             6 July 2023
+                                                            10 July 2023
 
 
-           External Transaction ID for Configuration Tracing
-             draft-quilbeuf-opsawg-configuration-tracing-01
+              External Trace ID for Configuration Tracing
+             draft-quilbeuf-opsawg-configuration-tracing-02
 
 Abstract
 
@@ -53,9 +53,9 @@ Discussion Venues
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 1]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 1]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
 Status of This Memo
@@ -73,7 +73,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 January 2024.
+   This Internet-Draft will expire on 11 January 2024.
 
 Copyright Notice
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 2]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 2]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
      5.2.  YANG module ietf-external-transaction-id  . . . . . . . .   9
@@ -165,9 +165,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 3]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 3]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
    This document specifies a mechanism to automatically map the
@@ -221,9 +221,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 4]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 4]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
 3.1.  Configuration Mistakes
@@ -277,9 +277,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 5]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 5]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
 4.1.  Existing configuration metadata on device
@@ -333,9 +333,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 6]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 6]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
    It is technically possible that several clients push configuration to
@@ -389,9 +389,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 7]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 7]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
    The steps for a software to trace a configuration modification in a
@@ -445,9 +445,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 8]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 8]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
    module: ietf-external-transaction-id
@@ -501,9 +501,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                 [Page 9]
+Quilbeuf, et al.         Expires 11 January 2024                [Page 9]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
      import ietf-yang-types {
@@ -557,9 +557,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 10]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 10]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
        description
@@ -613,9 +613,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 11]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 11]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
      }
@@ -669,9 +669,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 12]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 12]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
          }
@@ -725,9 +725,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 13]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 13]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
    [I-D.rogaglia-netconf-trace-ctx-extension]
@@ -781,9 +781,9 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 14]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 14]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
 Appendix A.  Changes between revisions
@@ -837,9 +837,9 @@ Authors' Addresses
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 15]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 15]
 
-Internet-Draft       Configuration Tracing via tx-id           July 2023
+Internet-Draft     Configuration Tracing via trace-id          July 2023
 
 
    Qiong Sun
@@ -893,4 +893,4 @@ Internet-Draft       Configuration Tracing via tx-id           July 2023
 
 
 
-Quilbeuf, et al.         Expires 7 January 2024                [Page 16]
+Quilbeuf, et al.         Expires 11 January 2024               [Page 16]
