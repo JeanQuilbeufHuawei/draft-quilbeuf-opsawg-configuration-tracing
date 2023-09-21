@@ -10,7 +10,7 @@
 
 ### Change in the text
 
-Modify [builder/draft-quilbeuf-opsawg-configuration-tracing.xml](builder/draft-quilbeuf-opsawg-configuration-tracing.xml).
+Modify [builder/draft-quilbeuf-netconf-configuration-tracing.xml](builder/draft-quilbeuf-netconf-configuration-tracing.xml).
 Run `make` to update the .xml and .txt versions in the main folder.
 
 ### Change in the YANG
