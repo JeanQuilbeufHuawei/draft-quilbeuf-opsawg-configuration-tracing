@@ -9,7 +9,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?> -->
 <rfc
         xmlns:xi="http://www.w3.org/2001/XInclude"
-        docName="draft-quilbeuf-opsawg-configuration-tracing-02"
+        docName="draft-quilbeuf-netconf-configuration-tracing-00"
         category="std"
         ipr="trust200902"
         obsoletes=""
@@ -22,7 +22,7 @@
         version="3" >
 <front>
     <title abbrev="Configuration Tracing via trace-id">External Trace ID for Configuration Tracing</title>
-    <seriesInfo name="Internet-Draft" value="draft-quilbeuf-opsawg-configuration-tracing-02"/>
+    <seriesInfo name="Internet-Draft" value="draft-quilbeuf-netconf-configuration-tracing-00"/>
     <author fullname="Jean Quilbeuf" initials="J" surname="Quilbeuf ">
       <organization>Huawei</organization>
       <address>
@@ -156,7 +156,7 @@
       <name>Use cases</name>
       <t>
         This document was written with autonomous networks in mind.
-        We assume that an existing monitoring or assurance system, such as described in <xref target="I-D.ietf-opsawg-service-assurance-architecture"/>, is able to detect and report network anomalies ,
+        We assume that an existing monitoring or assurance system, such as described in <xref target="RFC9417"/>, is able to detect and report network anomalies ,
         e.g. SLA violations, intent violations, network failure, or simply a customer issue.
         Here are the use cases for the proposed YANG module.
       </t>
@@ -452,7 +452,7 @@
     </references>
     <references title="Informative References">
       <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8040.xml"?>
-      <?rfc include="http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-opsawg-service-assurance-architecture.xml"?>
+      <?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.9417.xml"?>
     </references>
     <?rfc needLines="100"?>
     <section>
