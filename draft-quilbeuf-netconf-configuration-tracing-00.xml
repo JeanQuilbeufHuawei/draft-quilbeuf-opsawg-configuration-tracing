@@ -417,7 +417,7 @@ module ietf-external-transaction-id {
   }
 
   organization
-    "IETF OPSAWG Working Group";
+    "IETF NETCONF Working Group";
   contact
     "WG Web:   <https://datatracker.ietf.org/wg/netconf/>
      WG List:  <mailto:netconf@ietf.org>

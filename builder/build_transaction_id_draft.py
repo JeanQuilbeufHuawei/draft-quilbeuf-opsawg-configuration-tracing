@@ -91,7 +91,7 @@ def add_date(contents):
 
 if __name__ == '__main__':
     version = int(sys.argv[1])
-    output = os.path.join(os.path.dirname(BUILDER_DIR), f"draft-quilbeuf-opsawg-configuration-tracing-{version:02}.xml")
+    output = os.path.join(os.path.dirname(BUILDER_DIR), f"draft-quilbeuf-netconf-configuration-tracing-{version:02}.xml")
     draft_text = env.get_template("draft-quilbeuf-opsawg-configuration-tracing.xml")
     with open(output, 'w') as xml_generated:
         xml_generated.write(draft_text.render(**draft_content(), version=f"{version:02}"))
